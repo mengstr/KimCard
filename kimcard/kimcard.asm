@@ -1,6 +1,5 @@
 .NOLIST
-;.INCLUDE "m328pdef.inc"
-.INCLUDE "m644pdef.inc"
+.INCLUDE "m644adef.inc"
 .LIST
 .LISTMAC 
 
