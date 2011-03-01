@@ -1,0 +1,2009 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"
+    "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<meta name="generator" content="AsciiDoc 8.5.0" />
+<title>XASM (1)</title>
+<style type="text/css">
+/* Debug borders */
+p, li, dt, dd, div, pre, h1, h2, h3, h4, h5, h6 {
+/*
+  border: 1px solid red;
+*/
+}
+
+body {
+  margin: 1em 5% 1em 5%;
+}
+
+a {
+  color: blue;
+  text-decoration: underline;
+}
+a:visited {
+  color: fuchsia;
+}
+
+em {
+  font-style: italic;
+  color: navy;
+}
+
+strong {
+  font-weight: bold;
+  color: #083194;
+}
+
+tt {
+  color: navy;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  color: #20a0a0;
+  font-family: sans-serif;
+  margin-top: 1.2em;
+  margin-bottom: 0.5em;
+  line-height: 1.3;
+}
+
+h1, h2, h3 {
+  border-bottom: 2px solid silver;
+}
+h2 {
+  padding-top: 0.5em;
+}
+h3 {
+  float: left;
+}
+h3 + * {
+  clear: left;
+}
+
+div.sectionbody {
+  font-family: serif;
+  margin-left: 0;
+}
+
+hr {
+  border: 1px solid silver;
+}
+
+p {
+  margin-top: 0.5em;
+  margin-bottom: 0.5em;
+}
+
+ul, ol, li > p {
+  margin-top: 0;
+}
+
+pre {
+  padding: 0;
+  margin: 0;
+}
+
+span#author {
+  color: #20a0a0;
+  font-family: sans-serif;
+  font-weight: bold;
+  font-size: 1.1em;
+}
+span#email {
+}
+span#revnumber, span#revdate, span#revremark {
+  font-family: sans-serif;
+}
+
+div#footer {
+  font-family: sans-serif;
+  font-size: small;
+  border-top: 2px solid silver;
+  padding-top: 0.5em;
+  margin-top: 4.0em;
+}
+div#footer-text {
+  float: left;
+  padding-bottom: 0.5em;
+}
+div#footer-badges {
+  float: right;
+  padding-bottom: 0.5em;
+}
+
+div#preamble {
+  margin-top: 1.5em;
+  margin-bottom: 1.5em;
+}
+div.tableblock, div.imageblock, div.exampleblock, div.verseblock,
+div.quoteblock, div.literalblock, div.listingblock, div.sidebarblock,
+div.admonitionblock {
+  margin-top: 0.25em;
+  margin-bottom: 1.5em;
+}
+div.admonitionblock {
+  margin-top: 2.5em;
+  margin-bottom: 2.5em;
+}
+
+div.content { /* Block element content. */
+  padding: 0;
+}
+
+/* Block element titles. */
+div.title, caption.title {
+  color: #20a0a0;
+  font-family: sans-serif;
+  font-weight: bold;
+  text-align: left;
+  margin-top: 1.0em;
+  margin-bottom: 0.5em;
+}
+div.title + * {
+  margin-top: 0;
+}
+
+td div.title:first-child {
+  margin-top: 0.0em;
+}
+div.content div.title:first-child {
+  margin-top: 0.0em;
+}
+div.content + div.title {
+  margin-top: 0.0em;
+}
+
+div.sidebarblock > div.content {
+  background: #ffffee;
+  border: 1px solid silver;
+  padding: 0.5em;
+}
+
+div.listingblock > div.content {
+  border: 1px solid silver;
+  background: #f4f4f4;
+  padding: 0.5em;
+}
+
+div.quoteblock {
+  padding-left: 2.0em;
+  margin-right: 10%;
+}
+div.quoteblock > div.attribution {
+  padding-top: 0.5em;
+  text-align: right;
+}
+
+div.verseblock {
+  padding-left: 2.0em;
+  margin-right: 10%;
+}
+div.verseblock > div.content {
+  white-space: pre;
+}
+div.verseblock > div.attribution {
+  padding-top: 0.75em;
+  text-align: left;
+}
+/* DEPRECATED: Pre version 8.2.7 verse style literal block. */
+div.verseblock + div.attribution {
+  text-align: left;
+}
+
+div.admonitionblock .icon {
+  vertical-align: top;
+  font-size: 1.1em;
+  font-weight: bold;
+  text-decoration: underline;
+  color: #20a0a0;
+  padding-right: 0.5em;
+}
+div.admonitionblock td.content {
+  padding-left: 0.5em;
+  border-left: 2px solid silver;
+}
+
+div.exampleblock > div.content {
+  border-left: 2px solid silver;
+  padding: 0.5em;
+}
+
+div.imageblock div.content { padding-left: 0; }
+span.image img { border-style: none; }
+a.image:visited { color: white; }
+
+dl {
+  margin-top: 0.8em;
+  margin-bottom: 0.8em;
+}
+dt {
+  margin-top: 0.5em;
+  margin-bottom: 0;
+  font-style: normal;
+  color: navy;
+}
+dd > *:first-child {
+  margin-top: 0.1em;
+}
+
+ul, ol {
+    list-style-position: outside;
+}
+ol.arabic {
+  list-style-type: decimal;
+}
+ol.loweralpha {
+  list-style-type: lower-alpha;
+}
+ol.upperalpha {
+  list-style-type: upper-alpha;
+}
+ol.lowerroman {
+  list-style-type: lower-roman;
+}
+ol.upperroman {
+  list-style-type: upper-roman;
+}
+
+div.compact ul, div.compact ol,
+div.compact p, div.compact p,
+div.compact div, div.compact div {
+  margin-top: 0.1em;
+  margin-bottom: 0.1em;
+}
+
+div.tableblock > table {
+  border: 3px solid #20a0a0;
+}
+thead {
+  font-family: sans-serif;
+  font-weight: bold;
+}
+tfoot {
+  font-weight: bold;
+}
+td > div.verse {
+  white-space: pre;
+}
+p.table {
+  margin-top: 0;
+}
+/* Because the table frame attribute is overriden by CSS in most browsers. */
+div.tableblock > table[frame="void"] {
+  border-style: none;
+}
+div.tableblock > table[frame="hsides"] {
+  border-left-style: none;
+  border-right-style: none;
+}
+div.tableblock > table[frame="vsides"] {
+  border-top-style: none;
+  border-bottom-style: none;
+}
+
+
+div.hdlist {
+  margin-top: 0.8em;
+  margin-bottom: 0.8em;
+}
+div.hdlist tr {
+  padding-bottom: 15px;
+}
+dt.hdlist1.strong, td.hdlist1.strong {
+  font-weight: bold;
+}
+td.hdlist1 {
+  vertical-align: top;
+  font-style: normal;
+  padding-right: 0.8em;
+  color: navy;
+}
+td.hdlist2 {
+  vertical-align: top;
+}
+div.hdlist.compact tr {
+  margin: 0;
+  padding-bottom: 0;
+}
+
+.comment {
+  background: yellow;
+}
+
+@media print {
+  div#footer-badges { display: none; }
+}
+
+div#toctitle {
+  color: #20a0a0;
+  font-family: sans-serif;
+  font-size: 1.1em;
+  font-weight: bold;
+  margin-top: 1.0em;
+  margin-bottom: 0.1em;
+}
+
+div.toclevel1, div.toclevel2, div.toclevel3, div.toclevel4 {
+  margin-top: 0;
+  margin-bottom: 0;
+}
+div.toclevel2 {
+  margin-left: 2em;
+  font-size: 0.9em;
+}
+div.toclevel3 {
+  margin-left: 4em;
+  font-size: 0.9em;
+}
+div.toclevel4 {
+  margin-left: 6em;
+  font-size: 0.9em;
+}
+/* Overrides for manpage documents */
+h1 {
+  padding-top: 0.5em;
+  padding-bottom: 0.5em;
+  border-top: 2px solid silver;
+  border-bottom: 2px solid silver;
+}
+h2 {
+  border-style: none;
+}
+div.sectionbody {
+  margin-left: 5%;
+}
+
+@media print {
+  div#toc { display: none; }
+}
+
+/* Workarounds for IE6's broken and incomplete CSS2. */
+
+div.sidebar-content {
+  background: #ffffee;
+  border: 1px solid silver;
+  padding: 0.5em;
+}
+div.sidebar-title, div.image-title {
+  color: #20a0a0;
+  font-family: sans-serif;
+  font-weight: bold;
+  margin-top: 0.0em;
+  margin-bottom: 0.5em;
+}
+
+div.listingblock div.content {
+  border: 1px solid silver;
+  background: #f4f4f4;
+  padding: 0.5em;
+}
+
+div.quoteblock-attribution {
+  padding-top: 0.5em;
+  text-align: right;
+}
+
+div.verseblock-content {
+  white-space: pre;
+}
+div.verseblock-attribution {
+  padding-top: 0.75em;
+  text-align: left;
+}
+
+div.exampleblock-content {
+  border-left: 2px solid silver;
+  padding-left: 0.5em;
+}
+
+/* IE6 sets dynamically generated links as visited. */
+div#toc a:visited { color: blue; }
+</style>
+</head>
+<body>
+<div id="header">
+<h1>
+XASM (1) Manual Page
+</h1>
+<h2>NAME</h2>
+<div class="sectionbody">
+<p>xasm -
+   6502 cross-assembler
+</p>
+</div>
+</div>
+<h2 id="_synopsis">SYNOPSIS</h2>
+<div class="sectionbody">
+<div class="paragraph"><p><strong>xasm</strong> <em>[OPTIONS] SOURCE_FILE</em></p></div>
+</div>
+<h2 id="_description">DESCRIPTION</h2>
+<div class="sectionbody">
+<div class="paragraph"><p><strong>xasm</strong> is a cross-assembler for the 6502 family processors.</p></div>
+<div class="paragraph"><p><em>SOURCE_FILE</em> is the name of the source file
+(you may omit the default <tt>.asx</tt> extension).
+When invoked without any options, <strong>xasm</strong> assembles <em>SOURCE_FILE</em>
+and writes the result to an object file named <em>SOURCE_FILE</em>
+with the extension changed to <tt>.obx</tt>.</p></div>
+</div>
+<h2 id="_options">OPTIONS</h2>
+<div class="sectionbody">
+<div class="dlist"><dl>
+<dt class="hdlist1">
+<strong>/c</strong>
+</dt>
+<dd>
+<p>
+Specifies that lines skipped due to a false condition
+should be included in the listing file.
+</p>
+</dd>
+<dt class="hdlist1">
+<a id="new_deflabel"></a><strong>/d:</strong><em>LABEL</em>=<em>VALUE</em>
+</dt>
+<dd>
+<p>
+Defines a label.
+<em>LABEL</em> should be a valid label name.
+<em>VALUE</em> may be any expression (may reference to labels defined in source files).
+You may use several <strong>/d</strong> options to define many labels from the command line.
+</p>
+</dd>
+<dt class="hdlist1">
+<strong>/i</strong>
+</dt>
+<dd>
+<p>
+Excludes included files from the listing file.
+</p>
+</dd>
+<dt class="hdlist1">
+<strong>/l</strong><em>[:LISTING_FILE]</em>
+</dt>
+<dd>
+<p>
+Generates listing file.
+If <em>LISTING_FILE</em> is omitted, the listing filename
+is <em>SOURCE_FILE</em> with the extension changed to <tt>.lst</tt>.
+</p>
+</dd>
+<dt class="hdlist1">
+<a id="new_makefile"></a><strong>/M</strong>
+</dt>
+<dd>
+<p>
+Prints a rule for use in a <tt>Makefile</tt>.
+First line of the rule lists <em>OBJECT_FILE</em> as the target of the rule
+and all source files (including the ones specified by <tt>icl</tt> and <tt>ins</tt> directives)
+as dependencies. The second line contains the command line with <tt>OBJECT_FILE</tt>
+replaced by the <strong>make</strong> macro <tt>$@</tt> and <tt>SOURCE_FILE</tt> replaced by the macro <tt>$&lt;</tt>.
+Dollars in the command line are doubled.
+Your <tt>make</tt> or shell may require more escaping.
+</p>
+</dd>
+<dt class="hdlist1">
+<strong>/o</strong><em>:OBJECT_FILE</em>
+</dt>
+<dd>
+<p>
+Sets output file name.
+The default is <em>SOURCE_FILE</em> with the extension changed to <tt>.obx</tt>.
+</p>
+</dd>
+<dt class="hdlist1">
+<a id="new_fullpaths"></a><strong>/p</strong>
+</dt>
+<dd>
+<p>
+Prints fully qualified file names in listing and error messages.
+This option works only on Windows and is silently ignored on other platforms.
+</p>
+</dd>
+<dt class="hdlist1">
+<a id="new_quiet"></a><strong>/q</strong>
+</dt>
+<dd>
+<p>
+Quiet mode. Prevents <strong>xasm</strong> from printing the logo and the summary.
+</p>
+</dd>
+<dt class="hdlist1">
+<strong>/t</strong><em>[:LABEL_FILE]</em>
+</dt>
+<dd>
+<p>
+Generates label table.
+If <em>LABEL_FILE</em> is omitted then the table is appended to the listing.
+</p>
+</dd>
+<dt class="hdlist1">
+<a id="new_unlabels"></a><strong>/u</strong>
+</dt>
+<dd>
+<p>
+Issues a warning message for each label whose value is unused.
+</p>
+</dd>
+</dl></div>
+<div class="paragraph"><p>Alternatively, you may use Unix-style options, for example:</p></div>
+<div class="listingblock">
+<div class="content">
+<pre><tt>xasm -i -d DEBUG=1 -l listing.lst source.asx</tt></pre>
+</div></div>
+</div>
+<h2 id="_syntax">SYNTAX</h2>
+<div class="sectionbody">
+<div class="paragraph"><p>Source files should be plain ASCII files.
+LF, CR, CR/LF and Atari ($9b) line terminators are supported.
+Labels and instructions are case-insensitive.</p></div>
+<div class="paragraph"><p><strong>xasm</strong> is backward compatible with Quick Assembler.
+To compile QA sources with <strong>xasm</strong>, simply replace ATASCII-specific characters
+with their integer codes. You also have to update all <tt>OPT</tt> directives,
+but usually you can simply remove them.</p></div>
+<div class="paragraph"><p><em>Label</em> is a symbol that represents a signed 32-bit integer.
+You define a label by putting its name at the beginning of a line
+(with no spaces before).
+The label will be assigned the current value of the <em>origin counter</em>
+(i.e. the address of the compiled instruction),
+unless you use it with the <tt>EQU</tt> directive where it is assigned
+the value of the argument.</p></div>
+<div class="paragraph"><p>Instructions and directives must be preceded with some whitespace.
+Without leading whitespace they are treated as label names.
+For example:</p></div>
+<div class="listingblock">
+<div class="content">
+<pre><tt> nop</tt></pre>
+</div></div>
+<div class="paragraph"><p>is a 6502 instruction, whereas</p></div>
+<div class="listingblock">
+<div class="content">
+<pre><tt>nop</tt></pre>
+</div></div>
+<div class="paragraph"><p>defines a label called <tt>nop</tt>.</p></div>
+<div class="paragraph"><p>Whole-line comments must start with a semicolon, an asterisk or a pipe,
+with optional label definition and spaces before.
+Here are examples of whole-line comments:</p></div>
+<div class="listingblock">
+<div class="content">
+<pre><tt>; this is a comment
+ * so it is
+label | and this too</tt></pre>
+</div></div>
+<div class="paragraph" id="new_linerep"><p>Lines with instructions (and selected directives) may be <em>repeated</em>.
+To assemble a single line several times,
+precede the repeat count with a colon, for example:</p></div>
+<div class="listingblock">
+<div class="content">
+<pre><tt>:4 asl @
+table :32*5 dta 5</tt></pre>
+</div></div>
+<div class="paragraph"><p>In lines with instructions or directives, a comment starts immediately
+after the instruction/directive has been successfully parsed.
+That is, in these lines <strong>xasm</strong> does not require a special character
+to start a comment.</p></div>
+<div class="listingblock">
+<div class="content">
+<pre><tt> lda foo ; this is a comment
+ sta bar this too
+ tax #0  tax has no operand, therefore #0 starts this comment</tt></pre>
+</div></div>
+<div class="paragraph" id="new_pairing"><p>You may put two instructions in one line so they share the operand.
+For example:</p></div>
+<div class="listingblock">
+<div class="content">
+<pre><tt> eor:sta foo</tt></pre>
+</div></div>
+<div class="paragraph"><p>is equivalent to</p></div>
+<div class="listingblock">
+<div class="content">
+<pre><tt> eor foo
+ sta foo</tt></pre>
+</div></div>
+<div class="paragraph"><p>Note that</p></div>
+<div class="listingblock">
+<div class="content">
+<pre><tt> lda:tax #0</tt></pre>
+</div></div>
+<div class="paragraph"><p>is allowed because <tt>#0</tt> is treated as a comment for <tt>tax</tt>.</p></div>
+</div>
+<h2 id="_expressions">EXPRESSIONS</h2>
+<div class="sectionbody">
+<div class="paragraph"><p>Expressions are numbers combined with operators and brackets.
+You should use square brackets, because parentheses are reserved
+for 6502 indirect addressing.</p></div>
+<div class="paragraph"><p>A number is:</p></div>
+<div class="ulist"><ul>
+<li>
+<p>
+a 32-bit decimal integer, e.g. <tt>-12345</tt>
+</p>
+</li>
+<li>
+<p>
+a 32-bit hexadecimal integer, e.g. <tt>$abcd</tt>
+</p>
+</li>
+<li>
+<p>
+a 32-bit binary integer, e.g. <tt>%10100101</tt>
+</p>
+</li>
+<li>
+<p>
+an ASCII character, e.g. <tt>'a'</tt> or <tt>"a"</tt>
+</p>
+</li>
+<li>
+<p>
+origin counter: <tt>*</tt>
+</p>
+</li>
+<li>
+<p>
+a hardware register (see below), e.g. <tt>^4e</tt>
+</p>
+</li>
+<li>
+<p>
+<a id="new_opcode"></a>an opcode (see below), e.g. <tt>{lda #0}</tt> is <tt>$a9</tt>
+</p>
+</li>
+<li>
+<p>
+<a id="new_linecnt"></a>the line repeat counter (see below): <tt>#</tt>
+</p>
+</li>
+</ul></div>
+<div class="paragraph"><p>Abbreviations of Atari hardware registers are provided
+to save two characters (<tt>$d40e</tt> vs <tt>^4e</tt>)
+and to facilitate porting software between Atari 8-bit computers
+and the Atari 5200 console.
+These are very similar machines, one of the biggest differences
+is the location of hardware registers.</p></div>
+<div class="tableblock">
+<table rules="all"
+width="100%"
+frame="border"
+cellspacing="0" cellpadding="4">
+<col width="25%" />
+<col width="25%" />
+<col width="25%" />
+<col width="25%" />
+<thead>
+<tr>
+<th align="center" valign="top">Syntax</th>
+<th align="center" valign="top">Chip </th>
+<th align="center" valign="top">Value</th>
+<th align="center" valign="top">Value (Atari 5200 mode <tt>opt g+</tt>)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="center" valign="top"><p class="table"><tt>^0x</tt></p></td>
+<td align="center" valign="top"><p class="table">GTIA</p></td>
+<td align="center" valign="top"><p class="table"><tt>$D00x</tt></p></td>
+<td align="center" valign="top"><p class="table"><tt>$C00x</tt></p></td>
+</tr>
+<tr>
+<td align="center" valign="top"><p class="table"><tt>^1x</tt></p></td>
+<td align="center" valign="top"><p class="table">GTIA</p></td>
+<td align="center" valign="top"><p class="table"><tt>$D01x</tt></p></td>
+<td align="center" valign="top"><p class="table"><tt>$C01x</tt></p></td>
+</tr>
+<tr>
+<td align="center" valign="top"><p class="table"><tt>^2x</tt></p></td>
+<td align="center" valign="top"><p class="table">POKEY</p></td>
+<td align="center" valign="top"><p class="table"><tt>$D20x</tt></p></td>
+<td align="center" valign="top"><p class="table"><tt>$E80x</tt></p></td>
+</tr>
+<tr>
+<td align="center" valign="top"><p class="table"><tt>^3x</tt></p></td>
+<td align="center" valign="top"><p class="table">PIA</p></td>
+<td align="center" valign="top"><p class="table"><tt>$D30x</tt></p></td>
+<td align="center" valign="top"><p class="table"><em>error (there&#8217;s no PIA chip)</em></p></td>
+</tr>
+<tr>
+<td align="center" valign="top"><p class="table"><tt>^4x</tt></p></td>
+<td align="center" valign="top"><p class="table">ANTIC</p></td>
+<td align="center" valign="top"><p class="table"><tt>$D40x</tt></p></td>
+<td align="center" valign="top"><p class="table"><tt>$D40x</tt></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="paragraph"><p>The opcode syntax represents the opcode byte of the instruction inside braces.
+The operand of the instruction is discarded and is needed only to recognize
+the addressing mode. The instruction should begin right after the left brace
+and the right brace should immediately follow the operand <em>or</em> the instruction.
+<a id="new_op_op"></a>You can skip the operand if the addressing mode is fixed.
+Examples: <tt>{lda #}</tt>, <tt>{jsr}</tt>, <tt>{bne}</tt>, <tt>{jmp ()}</tt>, <tt>{sta a:,x}</tt>.</p></div>
+<div class="paragraph"><p>You can use the line repeat counter (<tt>#</tt>) in the repeated lines.
+It counts the iterations starting from zero. Examples:</p></div>
+<div class="listingblock">
+<div class="content">
+<pre><tt>:3 dta # ; generates three bytes: 0, 1, 2.
+line_lo :192 dta l(screen+40*#)
+line_hi :192 dta h(screen+40*#)
+dl :59 dta $4f,a(screen+40*#),0,$4f,a(screen+40*#),0</tt></pre>
+</div></div>
+<div class="paragraph"><p>The following <em>binary operators</em> are supported:</p></div>
+<div class="ulist"><ul>
+<li>
+<p>
+<tt>+</tt> Addition
+</p>
+</li>
+<li>
+<p>
+<tt>-</tt> Subtraction
+</p>
+</li>
+<li>
+<p>
+<tt>*</tt> Multiplication
+</p>
+</li>
+<li>
+<p>
+<tt>/</tt> Division
+</p>
+</li>
+<li>
+<p>
+<tt>%</tt> Remainder
+</p>
+</li>
+<li>
+<p>
+<tt>&amp;</tt> Bitwise AND
+</p>
+</li>
+<li>
+<p>
+<tt>|</tt> Bitwise OR
+</p>
+</li>
+<li>
+<p>
+<tt>^</tt> Bitwise XOR
+</p>
+</li>
+<li>
+<p>
+<tt>&lt;&lt;</tt> Arithmetic shift left
+</p>
+</li>
+<li>
+<p>
+<tt>&gt;&gt;</tt> Arithmetic shift right
+</p>
+</li>
+<li>
+<p>
+<tt>==</tt> Equal
+</p>
+</li>
+<li>
+<p>
+<tt>=</tt> Equal (same as <tt>==</tt>)
+</p>
+</li>
+<li>
+<p>
+<tt>!=</tt> Not equal
+</p>
+</li>
+<li>
+<p>
+<tt>&lt;&gt;</tt> Not equal (same as <tt>!=</tt>)
+</p>
+</li>
+<li>
+<p>
+<tt>&lt;</tt> Less than
+</p>
+</li>
+<li>
+<p>
+<tt>&gt;</tt> Greater than
+</p>
+</li>
+<li>
+<p>
+<tt>&lt;=</tt> Less or equal
+</p>
+</li>
+<li>
+<p>
+<tt>&gt;=</tt> Greater or equal
+</p>
+</li>
+<li>
+<p>
+<tt>&amp;&amp;</tt> Logical AND
+</p>
+</li>
+<li>
+<p>
+<tt>||</tt> Logical OR
+</p>
+</li>
+</ul></div>
+<div class="paragraph" id="new_unary"><p>The following <em>unary operators</em> are supported:</p></div>
+<div class="ulist"><ul>
+<li>
+<p>
+<tt>+</tt> Plus (does nothing)
+</p>
+</li>
+<li>
+<p>
+<tt>-</tt> Minus (changes the sign)
+</p>
+</li>
+<li>
+<p>
+<tt>~</tt> Bitwise NOT (complements all bits)
+</p>
+</li>
+<li>
+<p>
+<tt>!</tt> Logical NOT (changes true to false and vice versa)
+</p>
+</li>
+<li>
+<p>
+<tt>&lt;</tt> Low (extracts the low byte)
+</p>
+</li>
+<li>
+<p>
+<tt>&gt;</tt> High (extracts the high byte)
+</p>
+</li>
+</ul></div>
+<div class="paragraph"><p>The operator precedence is following:</p></div>
+<div class="ulist"><ul>
+<li>
+<p>
+first: <tt>[]</tt> (brackets)
+</p>
+</li>
+<li>
+<p>
+<tt>+ - ~ &lt; &gt;</tt> (unary)
+</p>
+</li>
+<li>
+<p>
+<tt>* / % &amp; &lt;&lt; &gt;&gt;</tt> (binary)
+</p>
+</li>
+<li>
+<p>
+<tt>+ - | ^</tt> (binary)
+</p>
+</li>
+<li>
+<p>
+<tt>= == &lt;&gt; != &lt; &gt; &lt;= &gt;=</tt> (binary)
+</p>
+</li>
+<li>
+<p>
+<tt>!</tt> (unary)
+</p>
+</li>
+<li>
+<p>
+<tt>&amp;&amp;</tt> (binary)
+</p>
+</li>
+<li>
+<p>
+last: <tt>||</tt> (binary)
+</p>
+</li>
+</ul></div>
+<div class="paragraph"><p>Although the operators are similar to those used in C, C++ and Java,
+their priorities are different than in these languages.</p></div>
+<div class="paragraph"><p>Compare and logical operators assume that zero is false and a non-zero
+is true. They return 1 for true.</p></div>
+<div class="paragraph"><p>Expressions are calculated in signed 32-bit arithmetic.
+"Arithmetic overflow" error signals overflow of the 32-bit range.</p></div>
+</div>
+<h2 id="_directives">DIRECTIVES</h2>
+<div class="sectionbody">
+<div class="dlist"><dl>
+<dt class="hdlist1">
+<strong>EQU</strong> - assign value of expression to label
+</dt>
+<dd>
+<p>
+Examples:
+</p>
+</dd>
+</dl></div>
+<div class="listingblock">
+<div class="content">
+<pre><tt>five equ 5
+here equ *</tt></pre>
+</div></div>
+<div class="dlist"><dl>
+<dt class="hdlist1">
+<a id="new_opt"></a><strong>OPT</strong> - set assembler options
+</dt>
+<dd>
+<p>
+Five options are available:
+</p>
+<div class="ulist"><ul>
+<li>
+<p>
+<tt>F</tt> - fill the space between memory areas with <tt>$FF</tt>
+</p>
+</li>
+<li>
+<p>
+<tt>G</tt> - Atari 5200 mode for hardware register abbreviations
+</p>
+</li>
+<li>
+<p>
+<tt>H</tt> - generate Atari executable headers
+</p>
+</li>
+<li>
+<p>
+<tt>L</tt> - write to the listing
+</p>
+</li>
+<li>
+<p>
+<tt>O</tt> - write to the object file
+</p>
+</li>
+</ul></div>
+</dd>
+</dl></div>
+<div class="paragraph"><p>You can turn any of these on or off.
+The default (if no <tt>OPT</tt> specified) is <tt>opt f-g-h+l+o+</tt>.
+Examples:</p></div>
+<div class="listingblock">
+<div class="content">
+<pre><tt> opt l-     listing off
+ opt l+o-   listing on, object file off
+ opt f+g+h- useful for Atari 5200 cartridges - raw output, 5200 hw regs</tt></pre>
+</div></div>
+<div class="dlist"><dl>
+<dt class="hdlist1">
+<strong>ORG</strong> - change value of the origin counter
+</dt>
+<dd>
+<p>
+If Atari executable headers are enabled, you can include an operand prefix:
+</p>
+<div class="ulist"><ul>
+<li>
+<p>
+<tt>a:</tt> starts a new block even if it&#8217;s superfluous
+  because the new address equals the current address.
+</p>
+</li>
+<li>
+<p>
+<tt>f:</tt> is same as <tt>a:</tt>, but additionally generates a double-<tt>$FF</tt> prefix
+  before the new header. This prefix is automatically generated
+  at the beginning of the file (no need to include <tt>f:</tt> in the first <tt>ORG</tt>).
+Examples:
+</p>
+</li>
+</ul></div>
+</dd>
+</dl></div>
+<div class="listingblock">
+<div class="content">
+<pre><tt> org $600
+ org f:$700
+table org *+100</tt></pre>
+</div></div>
+<div class="paragraph"><p>In the latter example <tt>table</tt> points to 100 bytes
+of uninitialized data (label is assigned with <tt>*</tt>
+before the <tt>ORG</tt> directive is executed).</p></div>
+<div class="paragraph"><p><a id="new_orgr"></a>Starting with version 2.6.0, <strong>xasm</strong> supports code
+that is relocated in the memory at runtime. Let&#8217;s say you want your code
+to be located on page zero. You can&#8217;t normally load it directly into this
+place, so you load it at a different address and then move in your program.
+<tt>org r:</tt> changes the address that it used for code generation
+but not the address used for generating Atari executable headers.
+Example:</p></div>
+<div class="listingblock">
+<div class="content">
+<pre><tt> org $8000
+ ldx #code_length-1
+ mva:rpl code_loaded,x z:code_zpage,x-
+ jmp code_zpage
+
+code_loaded
+ org r:$30
+code_zpage
+ jmp * ; ... or something more sensible
+code_length equ *-code_zpage</tt></pre>
+</div></div>
+<div class="paragraph"><p>Note that both <tt>*</tt> and label definitions use the counter used
+for code generation. There is no direct access to the other counter,
+because I think this is not useful. If you really need it, you can
+always type something like:</p></div>
+<div class="listingblock">
+<div class="content">
+<pre><tt>where_am_i equ *-code_zpage+code_loaded</tt></pre>
+</div></div>
+<div class="dlist"><dl>
+<dt class="hdlist1">
+<a id="new_dta"></a><strong>DTA</strong> - define data
+</dt>
+<dd>
+<div class="ulist"><ul>
+<li>
+<p>
+integers
+</p>
+<div class="ulist"><ul>
+<li>
+<p>
+bytes: <tt>b(200)</tt> or simply <tt>200</tt>
+</p>
+</li>
+<li>
+<p>
+words: <tt>a(10000)</tt>
+</p>
+</li>
+<li>
+<p>
+low bytes of words: <tt>l(511)</tt> (byte 255)
+</p>
+</li>
+<li>
+<p>
+high bytes of words: <tt>h(511)</tt> (byte 1)
+</p>
+</li>
+</ul></div>
+<div class="paragraph"><p>You may enter many expressions in parentheses and combine different types
+of data in single line, separating things with commas.</p></div>
+<div class="paragraph"><p>You may also define a sine lookup table. The syntax is:</p></div>
+<div class="listingblock">
+<div class="content">
+<pre><tt>sin(center,amp,size,first,last)</tt></pre>
+</div></div>
+<div class="paragraph"><p>where:</p></div>
+<div class="ulist"><ul>
+<li>
+<p>
+<tt>center</tt> is an integer which is added to every sine value
+</p>
+</li>
+<li>
+<p>
+<tt>amp</tt> is the sine amplitude
+</p>
+</li>
+<li>
+<p>
+<tt>size</tt> is the sine period
+</p>
+</li>
+<li>
+<p>
+<tt>first,last</tt> define the range of sine arguments.
+  They are optional. The default are <tt>0,size-1</tt>.
+</p>
+</li>
+</ul></div>
+<div class="paragraph"><p>Example:</p></div>
+<div class="listingblock">
+<div class="content">
+<pre><tt> dta a(sin(0,1000,256,0,63))</tt></pre>
+</div></div>
+<div class="paragraph"><p>defines a table of 64 words representing a quarter of sine with the amplitude of 1000.</p></div>
+</li>
+<li>
+<p>
+real numbers: <tt>r(-1.23456e12)</tt>
+</p>
+<div class="paragraph"><p>Real numbers are stored in the 6-byte Atari Floating-Point format.</p></div>
+</li>
+<li>
+<p>
+text strings
+</p>
+<div class="ulist"><ul>
+<li>
+<p>
+ASCII strings: <tt>c'Text'</tt> or <tt>c"Text"</tt>
+</p>
+</li>
+<li>
+<p>
+ANTIC strings: <tt>d'Text'</tt> or <tt>d"Text"</tt>
+</p>
+</li>
+</ul></div>
+<div class="paragraph"><p>A character string consists of any number of characters surrounded by quotation
+marks. You can include the quotation marks in the string by doubling them.
+Placing a <tt>*</tt> character after a string inverts
+the highest bit in every byte of the string.</p></div>
+<div class="paragraph"><p>Examples of <tt>DTA</tt>:</p></div>
+<div class="listingblock">
+<div class="content">
+<pre><tt> dta b(1,2),3,a(1000,-1),l(12345,sin(0,127,256))
+ dta d"ANTIC"*,c'It''s a string',$9b</tt></pre>
+</div></div>
+</li>
+</ul></div>
+</dd>
+<dt class="hdlist1">
+<strong>ICL</strong> - include another source file
+</dt>
+<dd>
+<p>
+Specifies another file to be included in the assembly as if the contents
+of the referenced file appeared in place of the <tt>ICL</tt> statement.
+The included file may contain other <tt>ICL</tt> statements.
+The <tt>.asx</tt> extension is added if none given.
+Examples:
+</p>
+</dd>
+</dl></div>
+<div class="listingblock">
+<div class="content">
+<pre><tt> icl 'macros.asx'
+ icl 'lib/fileio'</tt></pre>
+</div></div>
+<div class="paragraph"><p>Note: for portability, use only relative paths and slash as the separator.
+This way your sources will compile under Windows and Linux.</p></div>
+<div class="dlist"><dl>
+<dt class="hdlist1">
+<strong>END</strong> - end assembling file
+</dt>
+<dd>
+<p>
+May be used if the source file ends with something which shouldn&#8217;t
+be read by <strong>xasm</strong> (e.g. your notes). At the end of file it&#8217;s optional.
+</p>
+</dd>
+<dt class="hdlist1">
+<strong>INS</strong> - insert contents of file
+</dt>
+<dd>
+<p>
+Copies every byte of the specified file into the object file and updates
+the origin counter, as if these bytes were defined with <tt>DTA</tt>.
+You may specify a range of the file to insert. The syntax is:
+</p>
+</dd>
+</dl></div>
+<div class="listingblock">
+<div class="content">
+<pre><tt> ins 'file'[,offset[,length]]</tt></pre>
+</div></div>
+<div class="paragraph"><p>The first byte in a file has the offset of zero.
+If the offset is negative, it counts from the end of the file.
+Examples:</p></div>
+<div class="listingblock">
+<div class="content">
+<pre><tt> ins 'picture.raw'
+ ins 'file',-256  insert last 256 bytes of file
+ ins 'file',10,10 insert bytes 10..19 of file</tt></pre>
+</div></div>
+<div class="dlist"><dl>
+<dt class="hdlist1">
+<strong>RUN</strong> - set run address in the Atari executable format
+</dt>
+<dd>
+</dd>
+</dl></div>
+<div class="listingblock">
+<div class="content">
+<pre><tt> run main</tt></pre>
+</div></div>
+<div class="paragraph"><p>is equivalent to:</p></div>
+<div class="listingblock">
+<div class="content">
+<pre><tt> org $2e0
+ dta a(main)</tt></pre>
+</div></div>
+<div class="dlist"><dl>
+<dt class="hdlist1">
+<strong>INI</strong> - set init address in the Atari executable format
+</dt>
+<dd>
+<p>
+Example:
+</p>
+</dd>
+</dl></div>
+<div class="listingblock">
+<div class="content">
+<pre><tt> ini showpic</tt></pre>
+</div></div>
+<div class="dlist"><dl>
+<dt class="hdlist1">
+<strong>ERT</strong> - generate error if expression evaluates to true
+</dt>
+<dd>
+<p>
+Examples:
+</p>
+</dd>
+</dl></div>
+<div class="listingblock">
+<div class="content">
+<pre><tt> ert *&gt;$c000
+ ert len1&gt;$ff||len2&gt;$ff</tt></pre>
+</div></div>
+<div class="dlist"><dl>
+<dt class="hdlist1">
+<a id="new_eli"></a><strong>IFT</strong> - assemble if expression is true
+</dt>
+<dt class="hdlist1">
+<strong>ELI</strong> - else if
+</dt>
+<dt class="hdlist1">
+<strong>ELS</strong> - else
+</dt>
+<dt class="hdlist1">
+<strong>EIF</strong> - end if
+</dt>
+<dd>
+<p>
+With these directives you can construct fragments which
+are assembled only when a condition is met.
+Conditional constructions can be nested.
+Example:
+</p>
+</dd>
+</dl></div>
+<div class="listingblock">
+<div class="content">
+<pre><tt>noscr equ 1
+widescr equ 1
+ ift noscr
+ lda #0
+ eli widescr
+ lda #$23
+ els
+ lda #$22
+ eif
+ sta $22f</tt></pre>
+</div></div>
+<div class="paragraph"><p>Note: the above example may be rewritten using the <em>repeat line</em> feature:</p></div>
+<div class="listingblock">
+<div class="content">
+<pre><tt>noscr equ 1
+widescr equ 1
+:noscr lda #0
+:!noscr&amp;&amp;widescr lda #$23
+:!noscr&amp;&amp;!widescr lda #$22
+ sta $22f</tt></pre>
+</div></div>
+</div>
+<h2 id="_pseudo_commands">PSEUDO COMMANDS</h2>
+<div class="sectionbody">
+<div class="paragraph"><p><em>Pseudo commands</em> are built-in macros. There are no user-defined macros in <strong>xasm</strong>.</p></div>
+<div class="dlist"><dl>
+<dt class="hdlist1">
+<strong>ADD</strong> - addition without carry
+</dt>
+<dd>
+<p>
+If you have ever programmed a 6502, you must have noticed that you had
+to use a <tt>CLC</tt> before <tt>ADC</tt> for every simple addition.
+</p>
+<div class="paragraph"><p><strong>xasm</strong> can do it for you. <tt>ADD</tt> replaces two instructions: <tt>CLC</tt> and <tt>ADC</tt>.</p></div>
+</dd>
+<dt class="hdlist1">
+<strong>SUB</strong> - subtraction
+</dt>
+<dd>
+<p>
+It is <tt>SEC</tt> and <tt>SBC</tt>.
+</p>
+</dd>
+<dt class="hdlist1">
+<a id="new_repskip"></a><strong>RCC, RCS, REQ, RMI, RNE, RPL, RVC, RVS</strong> - conditional repeat
+</dt>
+<dd>
+<p>
+These are branches to the previous instruction.
+They take no operand, because the branch target is the address
+of the previously assembled instruction or pseudo command.
+Example:
+</p>
+<div class="listingblock">
+<div class="content">
+<pre><tt> ldx #0
+ mva:rne $500,x $600,x+</tt></pre>
+</div></div>
+<div class="paragraph"><p>The above code copies a 256-byte memory block from $500 to $600.
+Here is the same written with standard 6502 commands only:</p></div>
+<div class="listingblock">
+<div class="content">
+<pre><tt> ldx #0
+copy_loop lda $500,x
+ sta $600,x
+ inx
+ bne copy_loop</tt></pre>
+</div></div>
+</dd>
+<dt class="hdlist1">
+<strong>SCC, SCS, SEQ, SMI, SNE, SPL, SVC, SVS</strong> - conditional skip
+</dt>
+<dd>
+<p>
+These are branches over the next instruction. No operand is required,
+because the target is the address of the instruction following
+the next instruction.
+Example:
+</p>
+<div class="listingblock">
+<div class="content">
+<pre><tt> lda #40
+ add:sta ptr
+ scc:inc ptr+1</tt></pre>
+</div></div>
+<div class="paragraph"><p>In the above example the 16-bit variable <tt>ptr</tt> is incremented by 40.</p></div>
+</dd>
+<dt class="hdlist1">
+<strong>JCC, JCS, JEQ, JMI, JNE, JPL, JVC, JVS</strong> - conditional jumps
+</dt>
+<dd>
+<p>
+These are long branches. While standard branches (such as <tt>BNE</tt>)
+have range of -128..+127, these jumps have range of 64 kB.
+For example:
+</p>
+<div class="listingblock">
+<div class="content">
+<pre><tt> jne dest</tt></pre>
+</div></div>
+<div class="paragraph"><p>is equivalent to:</p></div>
+<div class="listingblock">
+<div class="content">
+<pre><tt> seq:jmp dest</tt></pre>
+</div></div>
+</dd>
+<dt class="hdlist1">
+<strong>INW</strong> - increment word
+</dt>
+<dd>
+<p>
+Increments a 16-bit word in the memory.
+Example:
+</p>
+<div class="listingblock">
+<div class="content">
+<pre><tt> inw dest</tt></pre>
+</div></div>
+<div class="paragraph"><p>is equivalent to:</p></div>
+<div class="listingblock">
+<div class="content">
+<pre><tt> inc dest
+ sne:inc dest+1</tt></pre>
+</div></div>
+</dd>
+<dt class="hdlist1">
+<strong>MVA, MVX, MVY</strong> - move byte using accumulator, X or Y
+</dt>
+<dd>
+<p>
+Each of these pseudo commands requires two operands
+and substitutes two commands:
+</p>
+<div class="listingblock">
+<div class="content">
+<pre><tt> mva source dest = lda source : sta dest
+ mvx source dest = ldx source : stx dest
+ mvy source dest = ldy source : sty dest</tt></pre>
+</div></div>
+</dd>
+<dt class="hdlist1">
+<a id="new_mwinde"></a><strong>MWA, MWX, MWY</strong> - move word using accumulator, X or Y
+</dt>
+<dd>
+<p>
+These pseudo commands require two operands and are combinations of two <tt>MV*</tt>'s:
+one to move the low byte, and the other to move the high byte.
+You can&#8217;t use indirect nor pseudo addressing mode with <tt>MW*</tt>.
+Destination must be an absolute address, optionally indexed.
+When source is also an absolute address, an <tt>mw* source dest</tt> expands to:
+</p>
+<div class="listingblock">
+<div class="content">
+<pre><tt> mv* source  dest
+ mv* source+1 dest+1</tt></pre>
+</div></div>
+<div class="paragraph"><p>When source is an immediate value, an <tt>mw* #immed dest</tt> expands to:</p></div>
+<div class="listingblock">
+<div class="content">
+<pre><tt> mv* &lt;immed dest
+ mv* &gt;immed dest+1</tt></pre>
+</div></div>
+<div class="paragraph"><p>When <tt>&lt;immed</tt> equals <tt>&gt;immed</tt> and <tt>immed</tt> is not forward-referenced,
+<strong>xasm</strong> skips the second <tt>LD*</tt>:</p></div>
+<div class="listingblock">
+<div class="content">
+<pre><tt> mv* &lt;immed dest
+ st* dest+1</tt></pre>
+</div></div>
+<div class="paragraph"><p>If possible, <tt>MWX</tt> and <tt>MWY</tt> use increment/decrement commands.
+For example, <tt>mwx #1 dest</tt> expands to:</p></div>
+<div class="listingblock">
+<div class="content">
+<pre><tt> ldx #1
+ stx dest
+ dex
+ stx dest+1</tt></pre>
+</div></div>
+</dd>
+</dl></div>
+</div>
+<h2 id="_addressing_modes">ADDRESSING MODES</h2>
+<div class="sectionbody">
+<div class="paragraph"><p>All addressing modes are entered in the standard 6502 convention
+except for the accumulator addressing mode,
+which should be marked with the <tt>@</tt> character (as in Quick Assembler).</p></div>
+<div class="paragraph"><p>For Quick Assembler compatibility, there are two extra immediate
+addressing modes: <tt>&lt;</tt> and <tt>&gt;</tt>, which use the low/high byte of a 16-bit word constant.
+Unlike in Quick Assembler, you can alternatively use
+the more common syntax: <tt>#&lt;</tt> and <tt>#&gt;</tt>.
+Note the difference:</p></div>
+<div class="listingblock">
+<div class="content">
+<pre><tt> lda &gt;$ff+5   ; loads 1 (&gt;$104)
+ lda #&gt;$ff+5  ; loads 5 (0+5)</tt></pre>
+</div></div>
+<div class="paragraph"><p>You can explicitly specify absolute (<tt>a:</tt>) and zero-page (<tt>z:</tt>) addressing modes.</p></div>
+<div class="paragraph"><p>Examples:</p></div>
+<div class="listingblock">
+<div class="content">
+<pre><tt> nop
+ asl @
+ lda &gt;$1234  assembles to lda #$12
+ lda $100,x
+ lda 0       zero-page (8-bit address)
+ lda a:0     absolute (16-bit address)
+ jmp ($0a)
+ lda ($80),y</tt></pre>
+</div></div>
+<div class="paragraph" id="new_adrmodes"><p>There are <em>pseudo addressing modes</em>, which are similar to pseudo commands.
+You may use them just like standard addressing modes in all 6502 commands
+and pseudo commands, except for <tt>MWA</tt>, <tt>MWX</tt> and <tt>MWY</tt>:</p></div>
+<div class="listingblock">
+<div class="content">
+<pre><tt> cmd a,x+   =  cmd a,x   : inx
+ cmd a,x-   =  cmd a,x   : dex
+ cmd a,y+   =  cmd a,y   : iny
+ cmd a,y-   =  cmd a,y   : dey
+ cmd (z),y+ =  cmd (z),y : iny
+ cmd (z),y- =  cmd (z),y : dey
+ cmd (z,0)  =  ldx #0    : cmd (z,x)
+ cmd (z),0  =  ldy #0    : cmd (z),y
+ cmd (z),0+ =  ldy #0    : cmd (z),y : iny
+ cmd (z),0- =  ldy #0    : cmd (z),y : dey</tt></pre>
+</div></div>
+</div>
+<h2 id="_history">HISTORY</h2>
+<div class="sectionbody">
+<h3 id="_version_3_0_2_2009_10_17">Version 3.0.2 (2009-10-17)</h3><div style="clear:left"></div>
+<div class="ulist"><ul>
+<li>
+<p>
+fixed "Branch out of range" error message - was overstated by 256 bytes
+  for backward branches
+</p>
+</li>
+<li>
+<p>
+<a href="#new_makefile">new command-line option <strong>/M</strong> prints Makefile rule</a>
+</p>
+</li>
+<li>
+<p>
+command-line options are now case-insensitive
+</p>
+</li>
+<li>
+<p>
+on Windows error messages are printed in red, warnings in yellow
+</p>
+</li>
+</ul></div>
+<h3 id="_version_3_0_1_2007_04_22">Version 3.0.1 (2007-04-22)</h3><div style="clear:left"></div>
+<div class="ulist"><ul>
+<li>
+<p>
+fixed a bug in <tt>OPT H-</tt> mode
+</p>
+</li>
+<li>
+<p>
+made <strong>xasm</strong> compilable with the latest D compiler v1.010
+  (there were incompatible changes in the D language and library)
+</p>
+</li>
+</ul></div>
+<h3 id="_version_3_0_0_2005_05_22">Version 3.0.0 (2005-05-22)</h3><div style="clear:left"></div>
+<div class="ulist"><ul>
+<li>
+<p>
+rewritten from the x86 assembly language to the
+  <a href="http://www.digitalmars.com/d">D programming language</a> - Linux version
+  is now available and DOS is no longer supported
+</p>
+</li>
+<li>
+<p>
+no limits for line length, number of <tt>ICLs</tt>, <tt>ORGs</tt>,<tt>IFTs</tt> and labels
+</p>
+</li>
+<li>
+<p>
+Unix-style command-line options are supported
+</p>
+</li>
+<li>
+<p>
+<strong>/e</strong> option is no longer supported
+</p>
+</li>
+<li>
+<p>
+the label table is now sorted alphabetically
+</p>
+</li>
+</ul></div>
+<h3 id="_version_2_6_1_2005_05_21">Version 2.6.1 (2005-05-21)</h3><div style="clear:left"></div>
+<div class="ulist"><ul>
+<li>
+<p>
+no more "Arithmetic overflow" and "Division by zero" errors for correct
+  use of forward-referenced labels (bug found by Marcin Lewandowski)
+</p>
+</li>
+<li>
+<p>
+an error was reported in the following correct code:
+</p>
+<div class="listingblock">
+<div class="content">
+<pre><tt> ift 0
+foo equ 1
+ ift foo
+ eif
+ eif</tt></pre>
+</div></div>
+<div class="paragraph"><p>(bug found by Adrian Matoga)</p></div>
+</li>
+<li>
+<p>
+errors for non-existing <tt>INC @</tt> and <tt>DEC @</tt>
+</p>
+</li>
+<li>
+<p>
+negative numbers fixed in the listing
+</p>
+</li>
+</ul></div>
+<h3 id="_version_2_6_0_2005_02_07">Version 2.6.0 (2005-02-07)</h3><div style="clear:left"></div>
+<div class="ulist"><ul>
+<li>
+<p>
+long file names are supported under Windows
+</p>
+</li>
+<li>
+<p>
+<a href="#new_orgr">support for code relocated at runtime</a>
+</p>
+</li>
+<li>
+<p>
+<a href="#new_linecnt">line repeat counter</a>
+</p>
+</li>
+<li>
+<p>
+label values are now 32-bit, not just 17-bit
+</p>
+</li>
+<li>
+<p>
+command-line options <strong>/n</strong> and <strong>/s</strong> are no longer supported
+</p>
+</li>
+<li>
+<p>
+fatal I/O errors (such as floppy not ready) no longer print the annoying
+  "Abort, Retry, Ignore" message
+</p>
+</li>
+</ul></div>
+<h3 id="_version_2_5_2_2002_10_03">Version 2.5.2 (2002-10-03)</h3><div style="clear:left"></div>
+<div class="ulist"><ul>
+<li>
+<p>
+version 2.5.1 broke Unix EOLs - fixed
+</p>
+</li>
+<li>
+<p>
+version 2.5.1 omitted all blank/comment/label lines, unless <strong>/c</strong> was used
+</p>
+</li>
+</ul></div>
+<h3 id="_version_2_5_1_2002_08_21">Version 2.5.1 (2002-08-21)</h3><div style="clear:left"></div>
+<div class="ulist"><ul>
+<li>
+<p>
+fixed assembling sources with Atari EOLs
+</p>
+</li>
+<li>
+<p>
+blank/comment/label lines in false conditionals are now correctly omitted
+  in listing
+</p>
+</li>
+</ul></div>
+<h3 id="_version_2_5_2002_07_08">Version 2.5 (2002-07-08)</h3><div style="clear:left"></div>
+<div class="ulist"><ul>
+<li>
+<p>
+fixed another bug, very similar to the previous one, e.g.
+</p>
+<div class="listingblock">
+<div class="content">
+<pre><tt> ift 0
+:label nop
+ eif</tt></pre>
+</div></div>
+<div class="paragraph"><p>reported "Label not defined before" error for the repeat count</p></div>
+</li>
+<li>
+<p>
+<a href="#new_opt"><tt>OPT F+</tt> causes <tt>ORG</tt> to fill the space   between the old and the new location with <tt>$FFs</tt></a>
+</p>
+</li>
+<li>
+<p>
+<a href="#new_opt"><tt>OPT G+</tt> enables Atari 5200 mode for hardware   register abbreviations</a>
+</p>
+</li>
+</ul></div>
+<h3 id="_version_2_4_1_2002_06_27">Version 2.4.1 (2002-06-27)</h3><div style="clear:left"></div>
+<div class="ulist"><ul>
+<li>
+<p>
+fixed a bug related to label definitions in conditionally skipped code,
+e.g.
+</p>
+<div class="listingblock">
+<div class="content">
+<pre><tt> ift 0
+label
+ eif</tt></pre>
+</div></div>
+<div class="paragraph"><p>reported "No ORG specified" error for the label definition</p></div>
+</li>
+</ul></div>
+<h3 id="_version_2_4_2002_05_22">Version 2.4 (2002-05-22)</h3><div style="clear:left"></div>
+<div class="ulist"><ul>
+<li>
+<p>
+fixed incorrect unary operator precedence
+</p>
+</li>
+<li>
+<p>
+fixed wrong label value after a skip pseudo command
+</p>
+</li>
+<li>
+<p>
+the assembler is .EXE (.COM caused problems with DJGPP <strong>make</strong> due
+  to a bug in the DJGPP runtime)
+</p>
+</li>
+<li>
+<p>
+the assembler executable is not compressed (so it occupies less space in the ZIP)
+</p>
+</li>
+<li>
+<p>
+improved command-line parsing: options may be used before source file name,
+  tab character is a valid separator, slash may be used as a directory separator
+</p>
+</li>
+<li>
+<p>
+error and warning messages are written to stderr, not stdout
+</p>
+</li>
+<li>
+<p>
+added <tt>==</tt> (equals) operator, which is equivalent to <tt>=</tt>,
+  but more natural for C/C++/Java programmers
+</p>
+</li>
+<li>
+<p>
+<a href="#new_deflabel">added <tt>/d:label=value</tt> option: define a label</a>
+</p>
+</li>
+<li>
+<p>
+<a href="#new_fullpaths">added <tt>/p</tt> option: print full paths   in listing and error messages</a>
+</p>
+</li>
+<li>
+<p>
+<a href="#new_quiet">added <tt>/q</tt> option: quiet mode</a>
+</p>
+</li>
+<li>
+<p>
+<a href="#new_unlabels">added <tt>/u</tt> option: warn of unused labels</a>
+</p>
+</li>
+<li>
+<p>
+<a href="#new_opt">writing to the object file may be suppressed with <tt>OPT O-</tt></a>
+</p>
+</li>
+<li>
+<p>
+<a href="#new_eli">added <tt>ELI</tt> (else if) directive</a>
+</p>
+</li>
+<li>
+<p>
+<a href="#new_mwinde"><tt>MWX</tt> and <tt>MWY</tt> may use <tt>INX</tt>/<tt>DEX</tt> and <tt>INY</tt>/<tt>DEY</tt></a>
+</p>
+</li>
+</ul></div>
+<h3 id="_version_2_3_2002_02_10">Version 2.3 (2002-02-10)</h3><div style="clear:left"></div>
+<div class="ulist"><ul>
+<li>
+<p>
+fixed double skip (e.g. <tt>SCC:SNE</tt>)
+</p>
+</li>
+<li>
+<p>
+fixed real numbers with two-digit exponent
+</p>
+</li>
+<li>
+<p>
+trailing spaces are trimmed from listing lines
+</p>
+</li>
+<li>
+<p>
+label definitions allowed in blank, comment and repeated lines
+</p>
+</li>
+<li>
+<p>
+<a href="#new_unary">unary operators</a>
+</p>
+</li>
+<li>
+<p>
+<a href="#new_dta"><tt>DTA</tt> implied byte mode</a>
+</p>
+</li>
+<li>
+<p>
+<a href="#new_op_op">operand can be skipped for some opcodes</a>
+</p>
+</li>
+</ul></div>
+<h3 id="_version_2_2_1999_09_10">Version 2.2 (1999-09-10)</h3><div style="clear:left"></div>
+<div class="ulist"><ul>
+<li>
+<p>
+fixed invalid opcodes of absolute <tt>CPX</tt> and <tt>CPY</tt>
+</p>
+</li>
+<li>
+<p>
+fixed: addressing mode not checked for branch commands
+</p>
+</li>
+<li>
+<p>
+fixed <tt>ICL</tt> in last line
+</p>
+</li>
+<li>
+<p>
+fixed <tt>OPT H-H+</tt>
+</p>
+</li>
+<li>
+<p>
+fixed first <tt>ORG *</tt>
+</p>
+</li>
+<li>
+<p>
+no need to set origin counter until it&#8217;s used
+</p>
+</li>
+<li>
+<p>
+allow Unix, Macintosh and Atari EOLs
+</p>
+</li>
+<li>
+<p>
+value of <em>true</em> changed to 1
+</p>
+</li>
+<li>
+<p>
+command-line option to set environment variables on error
+</p>
+</li>
+<li>
+<p>
+commane-line option to assemble only if source is newer than object file
+</p>
+</li>
+<li>
+<p>
+<a href="#new_opcode">opcode extracting</a>
+</p>
+</li>
+<li>
+<p>
+<a href="#new_linerep">repeat line</a>
+</p>
+</li>
+<li>
+<p>
+<a href="#new_pairing">two instructions in line</a>
+</p>
+</li>
+<li>
+<p>
+<a href="#new_repskip">conditional repeat and skip pseudo commands</a>
+</p>
+</li>
+<li>
+<p>
+<a href="#new_adrmodes"><tt>(),0+</tt> and <tt>(),0-</tt> pseudo addressing modes</a>
+</p>
+</li>
+</ul></div>
+<h3 id="_version_2_0_1998_11_12">Version 2.0 (1998-11-12)</h3><div style="clear:left"></div>
+<div class="ulist"><ul>
+<li>
+<p>
+fixed: name of object file was truncated
+</p>
+</li>
+<li>
+<p>
+fixed forward references in <tt>EQU</tt> and <tt>DTA</tt>
+</p>
+</li>
+<li>
+<p>
+fixed hex numbers
+</p>
+</li>
+<li>
+<p>
+<tt>.OBX</tt> is now the default extension for the object file
+</p>
+</li>
+<li>
+<p>
+options (command-line switches and <tt>OPT</tt>)
+</p>
+</li>
+<li>
+<p>
+listing
+</p>
+</li>
+<li>
+<p>
+label table
+</p>
+</li>
+<li>
+<p>
+conditional assembly
+</p>
+</li>
+<li>
+<p>
+user errors (<tt>ERT</tt>)
+</p>
+</li>
+<li>
+<p>
+warnings
+</p>
+</li>
+<li>
+<p>
+6 new pseudo commands (memory-to-memory move)
+</p>
+</li>
+<li>
+<p>
+8 pseudo addressing modes
+</p>
+</li>
+<li>
+<p>
+indirect conditional jumps
+</p>
+</li>
+<li>
+<p>
+Atari floating-point numbers
+</p>
+</li>
+<li>
+<p>
+object file headers optimization
+</p>
+</li>
+<li>
+<p>
+improved expressions - 19 operators and brackets, 32-bit arithmetic
+</p>
+</li>
+<li>
+<p>
+improved signed numbers
+</p>
+</li>
+<li>
+<p>
+improved <tt>INS</tt>: inserting specified part of file
+</p>
+</li>
+</ul></div>
+<h3 id="_version_1_2_1998_08_14">Version 1.2 (1998-08-14)</h3><div style="clear:left"></div>
+<div class="ulist"><ul>
+<li>
+<p>
+first release
+</p>
+</li>
+</ul></div>
+</div>
+<h2 id="_author">AUTHOR</h2>
+<div class="sectionbody">
+<div class="paragraph"><p>Piotr Fusik &lt;<a href="mailto:fox@scene.pl">fox@scene.pl</a>&gt;</p></div>
+</div>
+<h2 id="_see_also">SEE ALSO</h2>
+<div class="sectionbody">
+<div class="paragraph"><p>Website: <a href="http://xasm.atari.org">http://xasm.atari.org</a></p></div>
+</div>
+<div id="footer">
+<div id="footer-text">
+Last updated 2009-10-17 
+</div>
+</div>
+</body>
+</html>

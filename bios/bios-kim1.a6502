@@ -1,0 +1,426 @@
+;-----------------------------------------------------------------------------
+;
+; BIOS-KIM1.A6502 - BIOS for the "Credit Card" KIM-1 emulator
+;
+; August 2, 2010 : Mats Engstrom - First version
+; March 1, 2011  : Mats Engstrom - Updated directives for xasm.exe
+;
+;-----------------------------------------------------------------------------
+;
+; Stripped and slightly modified 6502 source code of the KIM-1 ROMS for the
+; "Credit Card" KIM-1 emulator.
+;
+; The code is originally copyrighed by MOS Technology Inc. back in 1975.
+; Who's the copyright holder today I don't know, but hopefully they will
+; not be too upset by this open source project. 
+;
+; The first ROM only dealt with the cassette tape interce and is completely
+; removed from the source. All parts in the second ROM that handled the
+; TTY and papertape interfaces is also removed and replaced with zeros 
+; (BRK instructions).
+;
+; The inspiration for this project is Lee Hart's Cosmac 1802 Membership Card
+; computer housed in an Altiods tin. His site can be found at
+; http://www.retrotechnology.com/memship/memship.html
+;
+; The source code below was originally copied from the manuals by hand by 
+; Ruud Baltissen. The original code can be found at his website at 
+; http://www.baltissen.org/newhtm/src_kim.htm
+;
+; This code should be assembled and with xasm.exe that can be found at
+; http://atariarea.krap.pl/x-asm/
+;
+; The full project of the Membership Card Kim-1 emulator can be found at
+; http://www.smallroomlabs/kimcard/
+;
+; Mats Engstrom - mats@smallroomlabs.com
+;
+;-----------------------------------------------------------------------------
+
+PCL         EQU $EF         ; programcounter low
+PCH         EQU $F0         ; programcounter high
+PREG        EQU $F1         ; statusregister
+SPUSER      EQU $F2         ; stackpointer
+ACC         EQU $F3
+YREG        EQU $F4
+XREG        EQU $F5
+
+INL         EQU $F8         ; inputbuffer low
+INH         EQU $F9         ; inputbuffer high
+POINTL      EQU $FA         ; addressL on display
+POINTH      EQU $FB         ; addressH on display
+TEMP        EQU $FC
+MODE        EQU $FF
+
+INL_A       EQU $00F8       ; INL as absolute address
+
+; Mats Engstrom : The vectors below was originally
+; held in the 64-byte RAM memory area in the 6530 ROM/IO chips
+; This memory is not emulated so I've moved them down to
+; zeropage
+
+NMIV        EQU $00F6	     ; NMI-vector
+IRQV        EQU $00ED       ; IRQ-vector
+
+SAD         EQU $1740
+PADD        EQU SAD+1
+SBD         EQU SAD+2
+PBDD        EQU SAD+3
+
+
+
+			ORG $1C00
+
+
+;
+;
+;
+; KIM-entry via NMI or IRQ                                              [1C00]
+SAVE            sta     ACC
+                pla
+                sta     PREG
+;
+; KIM-entry via JSR
+SAVEA           pla
+                sta     PCL
+                sta     POINTL
+                pla
+                sta     PCH
+                sta     POINTH
+;
+SAVEB           sty     YREG
+                stx     XREG
+                tsx
+                stx     SPUSER
+                jsr     INITS
+                jmp     START
+;
+; NMI and IRQ are called via RAM-vector. This enables the programmer
+; to insert his own routines.
+; Comment: is not initialized anywhere, so any accidental NMI or IRQ  
+;  can lead to disaster !
+NMIT            jmp     (NMIV)
+IRQT            jmp     (IRQV)
+;
+; The KIM starts here after a reset
+RESET           ldx     #$FF
+                txs                     ; set stack
+                stx     SPUSER 
+                jsr     INITS
+
+;
+; DETERMINE TTY CPS removed from code by Mats Engstrom
+; 
+	DTA 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+	DTA 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+	DTA 0,0,0,0,0
+;
+; Make TTY/KB selection
+;
+START           JSR     INIT1					;[1c4f]
+		JMP	TTYKB		; Mats Engstrom : Always use KB/Display
+	DTA 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+	DTA 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+	DTA 0,0,0
+
+
+;
+; Main routine for keyboard and display
+TTYKB           jsr     SCAND           ; wait until NO key pressed	[1c77]
+                bne     START           ; if pressed, wait again ->
+
+TTYKB1          NOP			; Mats Engstrom : No need to check for TTY mode
+		NOP
+		NOP
+		NOP
+		NOP
+		NOP
+		
+                jsr     SCAND           ; Wait for key...
+                beq     TTYKB1          ; no key ->
+
+                jsr     SCAND           ; debounce key
+                beq     TTYKB1          ; no key ->
+;
+GETK            jsr     GETKEY
+                cmp     #$15            ; >= $15 = illegal
+                bpl     START           ; yes ->
+
+                cmp     #$14
+                beq     PCCMD           ; display Program Counter
+
+                cmp     #$10
+                beq     ADDRM           ; Addressmode
+
+                cmp     #$11
+                beq     DATAM           ; datamode
+
+                cmp     #$12
+                beq     STEP            ; step
+
+                cmp     #$13
+                beq     GOV             ; execute program
+;
+; One of the hexadecimal buttons has been pushed
+DATA            asl		@                ; move LSB key number to MSB	[1ca8]
+                asl		@
+                asl		@
+                asl		@
+                sta     TEMP            ; store for datamode
+                ldx     #4
+
+DATA1           ldy     MODE            ; part of address?
+                bne     ADDR            ; yes ->
+
+                lda     (POINTL),Y      ; get data
+                asl     TEMP
+                rol     @               ; MSB-TEMP = MSB-key -> A
+                sta     (POINTL),Y      ; store new data
+                jmp     DATA2
+
+ADDR            asl     @               ; TEMP not needed here		[1cbe]
+                rol     POINTL          ; MSB-key -> POINTL
+                rol     POINTH          ; POINTL -> POINTH
+
+DATA2           dex                     ; 4 times = complete nibble?
+                bne     DATA1           ; no ->
+
+                beq     DATAM2          ; -> always
+;
+; Switch to address mode
+ADDRM           lda     #1
+                bne     DATAM1          ; -> always
+;
+; Switch to data mode
+DATAM           lda     #0						;[1ccc]
+DATAM1          sta     MODE
+DATAM2          jmp     START
+;
+; Increment address on display
+STEP            jsr     INCPT
+                jmp     START
+;
+GOV             jmp     GOEXEC
+;
+; Display PC by moving it to POINT					[1cdc]
+PCCMD           lda     PCL
+                sta     POINTL
+                lda     PCH
+                sta     POINTH
+                jmp     START
+;
+; LOAD & DUMP for papertape removed from code by Mats Engstrom
+;
+	DTA 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+	DTA 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+	DTA 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+	DTA 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+	DTA 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+	DTA 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+	DTA 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+	DTA 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+	DTA 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+	DTA 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+	DTA 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+	DTA 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+	DTA 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+	DTA 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+	DTA 0
+
+
+
+; Start a program at displayed address. RTI is used as a comfortable 
+; way to define all flags in one move.
+GOEXEC          ldx     SPUSER          ; user defined stack		[1dc8]
+                txs
+                lda     POINTH          ; program runs from
+                pha                     ;  displayed address
+                lda     POINTL
+                pha
+                lda     PREG            ; user defined Flag register
+                pha
+                ldx     XREG
+                ldy     YREG
+                lda     ACC
+                rti                     ; start program
+;
+; SCAN KEY CODES for TTY removed from code by Mats Engstrom
+; PRINT POINT/ADDRESS TO TTY removed from code by Mats Engstrom
+; GET CHARACTER FROM TTY removed from code by Mats Engstrom
+;
+	DTA 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+	DTA 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+	DTA 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+	DTA 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+	DTA 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+	DTA 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+	DTA 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+	DTA 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+	DTA 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+	DTA 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+	DTA 0,0,0,0,0,0,0,0,0,0,0,0,0
+
+;
+; initialization of 6530                                                [1E88]
+INITS           ldx     #1              ; set display to address mode
+                stx     MODE
+;
+INIT1           ldx     #0
+                stx     PADD            ; PA0..PA7 = input
+                ldx     #$3F
+                stx     PBDD            ; PB0..PB5 = output
+                                        ; PB6, PB7 = input
+                ldx     #7              ; enable 74145 output 3 to
+                stx     SBD             ;  check KB/TTY-mode
+                cld
+                sei
+                rts
+;
+; OUTPUT CHARACTER TO TTY removed from code by Mats Engstrom
+;
+
+	DTA 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+	DTA 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+	DTA 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+	DTA 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+	DTA 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+	DTA 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+
+;
+; Determine if key is depressed: NO -> A=0, YES -> A>0
+AK              ldy     #3              ; 3 rows			[1efe]
+                ldx     #1              ; select 74145 output 0
+
+ONEKEY          lda     #$FF            ; initial value
+;
+AKA             stx     SBD             ; enable output = select row
+                inx
+                inx                     ; prepare for next row
+                and     SAD             ; A := A && (PA0..PA7)
+                dey                     ; all rows?
+                bne     AKA             ; no ->
+
+                ldy     #7
+                sty     SBD             ; select 74145 output 3 (not used)
+;
+                ora     #$80            ; mask bit 7 of A
+                eor     #$FF            ; if A still is $FF -> A := 0
+                rts
+;
+; Output to 7-segment-display
+SCAND           ldy     #0              ; POINTL/POINTH = address on display	[1f19]
+                lda     (POINTL),Y      ; get data from this address
+                sta     INH             ; store in INH =
+SCANDS          lda     #$7F            ; PA0..PA6 := output
+                sta     PADD
+
+                ldx     #9              ; Start with display at output 4
+                ldy     #3              ; 3 bytes to be shown
+;
+SCAND1          lda     INL_A,y         ; get byte
+                lsr     @               ; get MSD by shifting A
+                lsr		@
+                lsr		@
+                lsr		@
+                jsr     CONVD
+                lda     INL_A,y         ; get byte again
+                and     #$0F            ; get LSD
+                jsr     CONVD
+                dey                     ; all ?
+                bne     SCAND1          ; no ->
+
+                stx     SBD             ; all digits off
+                lda     #0
+                sta     PADD            ; PA0..PA7 := input
+                jmp     AK
+;
+; Convert digit into 7-segment-value	
+CONVD           sty     TEMP				;[1f48]
+                tay
+                lda     TABLE,Y
+                ldy     #0
+                sty     SAD             ; turn off segments
+                stx     SBD             ; select 7-s-display
+                sta     SAD             ; output code on display
+
+                ldy     #$7F            ; delay ~500 cycles
+CONVD1          dey
+                bne     CONVD1
+
+                inx                     ; next display
+                inx
+                ldy     TEMP
+                rts
+;
+; Increment POINT = address on display
+INCPT           inc     POINTL		;[1f63]
+                bne     INCPT2
+
+                inc     POINTH
+INCPT2          rts
+;
+; Get key from keyboard in A
+GETKEY          ldx     #$21            ; row 0 / disable input TTY	[1f6a]
+GETKE5          ldy     #1              ; only one row in the time
+                jsr     ONEKEY          ; key?
+                bne     KEYIN           ; yes ->
+
+                cpx     #$27            ; last row?
+                bne     GETKE5          ; no, next one ->
+
+                lda     #$15            ; 15 = no key
+                rts
+;
+KEYIN           ldy     #$FF            ; Y := key number		[1f7a]
+KEYIN1          asl     @               ; shift A until
+                bcs     KEYIN2          ;  bit = 1 ->
+;
+; Comment: bit 7 is always 0 so Carry is always 0 the first time
+;  and allowing Y to become 0 (key $FF does not exist)
+                iny
+                bpl     KEYIN1          ; always ->
+
+KEYIN2          txa
+                and     #$0F            ; strip bit4..7
+                lsr     @               ; A := row+1
+                tax                     ; X := actual row+1
+                tya
+                bpl     KEYIN4          ; always, because Y<7 ->
+
+;
+; Add 7 to A for every row above 0 to get actual key number
+KEYIN3          clc
+                adc     #7              ; add (X-1) times 7 to A
+KEYIN4          dex                     ; countdown to 0
+                bne     KEYIN3
+
+                rts                     ; A is always < 21 eg. < $15
+
+
+; COMPUTE CHECKSUM AND TTY HEX CONVERTING removed by Mats Engstrom
+
+	DTA 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+	DTA 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+	DTA 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+	DTA 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+	DTA 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+	DTA 0,0,0,0,0,0
+
+
+; Hex -> 7-segment	0   1   2   3   4   5   6   7
+TABLE   DTA   		$BF,$86,$DB,$CF,$E6,$ED,$FD,$87
+;                   8   9   A   B   C   D   E   F
+		DTA   		$FF,$EF,$F7,$FC,$B9,$DE,$F9,$F1
+;
+		DTA 		$FF,$FF,$FF
+
+;
+; Comment: if everything is compiled right, next vectors should
+;  start at $FFFA
+NMIENT          DTA     a(NMIT)
+RSTENT          DTA     a(RESET)
+IRQENT          DTA     a(IRQT)
+
+		END
+
+
