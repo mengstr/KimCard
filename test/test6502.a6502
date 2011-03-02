@@ -1,0 +1,22 @@
+;-----------------------------------------------------------------------------
+;
+; TEST.A6502 - TEST CODE FOR THE 6502 EMULATOR
+;
+; March 1, 2011  : Mats Engstrom - First version
+;
+;-----------------------------------------------------------------------------
+;
+; This is a part of the Credit Card Kim-1 emulator which can be found at
+; http://www.smallroomlabs/kimcard/
+;
+; Mats Engstrom - mats@smallroomlabs.com
+;
+;-----------------------------------------------------------------------------
+
+		ORG $0200
+
+		DTA	$ff				; Signal success
+
+		END
+
+

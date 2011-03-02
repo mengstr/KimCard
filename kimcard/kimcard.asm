@@ -3,6 +3,10 @@
 .LIST
 .LISTMAC 
 
+#define TEST
+
+
+
 ;
 ; ATMEGA328 PORT				USED FOR 
 ; -------------------------		----------------------------
@@ -34,452 +38,99 @@
 ;
 
 ;
+; MEMORY MAP - AVR RAM
+; -------------------------------------------------------------------
+; 00xx AVR registers (00-1F), IO (20-5F), Extended IO (60-FF)
+; 01xx SRAM AVR stack
+; 02xx SRAM 
+; 03xx SRAM 
+; 04xx SRAM KIM-1 RAM Zero page
+; 05xx SRAM KIM-1 RAM Stack page
+; 06xx SRAM KIM-1 RAM Code page
+; 07xx SRAM KIM-1 RAM Code page
+; 08xx SRAM
+; 09xx SRAM
+; 0Axx SRAM
+; 0Bxx SRAM
+; 0Cxx SRAM KIM-1 ROM Page 1Cxx
+; 0Dxx SRAM KIM-1 ROM Page 1Dxx
+; 0Exx SRAM KIM-1 ROM Page 1Exx
+; 0Fxx SRAM KIM-1 ROM Page 1Fxx
+; 10xx SRAM
 ;
 ;
+; CONVERT KIM-1 MEMORY ADDRESS TO AVR SRAM ADDRESS
+; -------------------------------------------------------------------
+;	AND 0000 1111
+;	OR  0000 0100
+;
+; KIM-1 MEMORY MAP									( AFTER AND+OR)
+; -------------------------------------------------------------------
+; 00xx - 0000 0000 xxxx xxxx - RAM Zero page RAM	(0000 0100) - 04
+; 01xx - 0000 0001 xxxx xxxx - RAM Stack RAM		(0000 0101) - 05
+; 02xx - 0000 0010 xxxx xxxx - RAM Code RAM			(0000 0110) - 06
+; 03xx - 0000 0011 xxxx xxxx - RAM Code RAM			(0000 0111) - 07 
+; 1cxx - 0001 1100 xxxx xxxx - ROM RRIOT 6530 #2	(0000 1100) - 0C
+; 1dxx - 0001 1101 xxxx xxxx - ROM RRIOT 6530 #2	(0000 1101) - 0D
+; 1exx - 0001 1110 xxxx xxxx - ROM RRIOT 6530 #2	(0000 1110) - 0E
+; 1fxx - 0001 1111 xxxx xxxx - ROM RRIOT 6530 #2	(0000 1111) - 0F
 ;
 ;
-;
-;
 
 
-.equ	BIT_FLAG_CARRY		= 0
-.equ	BIT_FLAG_ZERO		= 1
-.equ	BIT_FLAG_INTERRUPT	= 2
-.equ	BIT_FLAG_DECIMAL	= 3
-.equ	BIT_FLAG_BREAK		= 4
-.equ	BIT_FLAG_UNUSED		= 5
-.equ	BIT_FLAG_OVERFLOW	= 6
-.equ	BIT_FLAG_NEGATIVE	= 7
 
-.equ	MASK_FLAG_CARRY		= (1<<BIT_FLAG_CARRY)
-.equ	MASK_FLAG_ZERO		= (1<<BIT_FLAG_ZERO)
-.equ	MASK_FLAG_INTERRUPT	= (1<<BIT_FLAG_INTERRUPT)
-.equ	MASK_FLAG_DECIMAL	= (1<<BIT_FLAG_DECIMAL)
-.equ	MASK_FLAG_BREAK		= (1<<BIT_FLAG_BREAK)
-.equ	MASK_FLAG_UNUSED	= (1<<BIT_FLAG_UNUSED)
-.equ	MASK_FLAG_OVERFLOW	= (1<<BIT_FLAG_OVERFLOW)
-.equ	MASK_FLAG_NEGATIVE	= (1<<BIT_FLAG_NEGATIVE)
+	.equ	BIT_FLAG_CARRY		= 0
+	.equ	BIT_FLAG_ZERO		= 1
+	.equ	BIT_FLAG_INTERRUPT	= 2
+	.equ	BIT_FLAG_DECIMAL	= 3
+	.equ	BIT_FLAG_BREAK		= 4
+	.equ	BIT_FLAG_UNUSED		= 5
+	.equ	BIT_FLAG_OVERFLOW	= 6
+	.equ	BIT_FLAG_NEGATIVE	= 7
 
+	.equ	MASK_FLAG_CARRY		= (1<<BIT_FLAG_CARRY)
+	.equ	MASK_FLAG_ZERO		= (1<<BIT_FLAG_ZERO)
+	.equ	MASK_FLAG_INTERRUPT	= (1<<BIT_FLAG_INTERRUPT)
+	.equ	MASK_FLAG_DECIMAL	= (1<<BIT_FLAG_DECIMAL)
+	.equ	MASK_FLAG_BREAK		= (1<<BIT_FLAG_BREAK)
+	.equ	MASK_FLAG_UNUSED	= (1<<BIT_FLAG_UNUSED)
+	.equ	MASK_FLAG_OVERFLOW	= (1<<BIT_FLAG_OVERFLOW)
+	.equ	MASK_FLAG_NEGATIVE	= (1<<BIT_FLAG_NEGATIVE)
 
 
+	.def	ALWAYSZERO		= r0
+	.def	TEMP			= r18
+	.def	CPU_ACC			= r19
+	.def	CPU_X			= r20
+	.def	CPU_Y			= r21
+	.def	CPU_STATUS		= r22
+	.def	CPU_SP			= r23
 
-.def	ALWAYSZERO		= r0
-.def	TEMP			= r18
-.def	CPU_ACC			= r19
-.def	CPU_X			= r20
-.def	CPU_Y			= r21
-.def	CPU_STATUS		= r22
-.def	CPU_SP			= r23
+	.def	CPU_PCH			= r29;	YH
+	.def	CPU_PCL			= r28;	YL
 
-.def	CPU_PCH			= r29;	YH
-.def	CPU_PCL			= r28;	YL
+	.equ	BIOS			= 0x0c00
+	.equ	AVRSTACKSIZE	= 256	
 
-.equ	Bios			= 0x0500
-.equ	AVRSTACK		= 0x06C3	; A large unused area in the 6502 BIOS is 
-									; used as the AVE stack pointer
 
+	.DSEG	
+	.ORG	0x0100
 
-.NOLIST
+AVRSTACK:	.byte AVRSTACKSIZE
 
-.MACRO HandleABSOLUTE
-	mov		TEMP, YH
-	andi	YH, 7			; Wrap addresspace to get access to BIOS at 0x1C00-0x1FFF as 0x0400
-	inc		YH
-	ld		ZL, Y+			; Absolute Address (low)
-	ld		ZH, Y+			; Absolute Address (high)
-	inc		ZH				; Offset for SRAM
-	mov		YH, TEMP
-	cpi		ZH, 0x18		; Set Zero-flag if we're accessing the ports
-.ENDMACRO
+	.ORG	0x0400
+KIM1RAM:	.byte 1024
 
+	.ORG	0x0C00
+KIM1ROM:	.byte 1024
 
 
-.MACRO HandleABSOLUTE_X
-	inc		YH
-	ld		ZL, Y+			; Absolute Address (low)
-	ld		ZH, Y+			; Absolute Address (high)
-	inc		ZH				; Offset for SRAM
-	add		ZL, CPU_X		; Add X-register to address
-	adc		ZH, r0			; r0 is always zero
-	dec		YH
-	cpi		ZH, 0x18		; Set Zero-flag if we're accessing the ports
-.ENDMACRO
-
-
-
-
-.MACRO HandleABSOLUTE_Y
-	inc		YH
-	ld		ZL, Y+			; Absolute Address (low)
-	ld		ZH, Y+			; Absolute Address (high)
-	inc		ZH				; Offset for SRAM
-	add		ZL, CPU_Y		; Add Y-register to address
-	adc		ZH, r0			; r0 is always zero
-	dec		YH
-	cpi		ZH, 0x18		; Set Zero-flag if we're accessing the ports
-.ENDMACRO
-
-
-
-
-.MACRO HandleZEROPAGE
-	inc		YH
-	ld		ZL, Y+			; ZP Address (low)
-	ldi		ZH, 1			; Offset for SRAM (high)
-	dec		YH
-.ENDMACRO
-
-
-
-
-
-.MACRO HandleZEROPAGE_X
-	inc		YH
-	ld		ZL, Y+			; ZP Address
-	add		ZL, CPU_X
-	ldi		ZH, 1			; SRAM offset
-	dec		YH
-.ENDMACRO
-
-
-
-
-.MACRO HandleZEROPAGE_Y
-	inc		YH
-	ld		ZL, Y+			; ZP Address
-	add		ZL, CPU_Y
-	ldi		ZH, 1			; SRAM offset
-	dec		YH
-.ENDMACRO
-
-
-
-
-.MACRO HandleIMMEDIATE
-	inc		YH
-	ld		ZL, Y+			
-	dec		YH
-.ENDMACRO
-
-
-
-
-.MACRO HandleRelative
-	inc		YH
-	ld		r16, Y+			; Get offset
-	dec		YH
-.ENDMACRO
-
-
-
-
-.MACRO HandleINDIRECT_X
-	inc		YH
-	ld		XL, Y+			; Address (low)
-	ldi		XH, 1			; Address (high) Ofsetted for SRAM
-	add		XL, CPU_X		; Add X-register to address
-	adc		XH, r0			; r0 is always zero
-	dec		YH
-	ld		ZL, X+
-	ld		ZH, X+
-	inc		ZH	 			; Offset for SRAM
-	cpi		ZH, 0x18		; Set Zero-flag if we're accessing the ports
-.ENDMACRO
-
-
-
-
-.MACRO HandleINDIRECT_Y
-	inc		YH
-	ld		XL, Y+			; Address (low)
-	ldi		XH, 1			; Address (high) ofgstted for SRAM
-	dec		YH
-	ld		ZL, X+
-	ld		ZH, X+
-	add		ZL, CPU_Y		; Add Y-register to address
-	adc		ZH, r0			; r0 is always zero
-	inc		ZH	 			; Offset for SRAM
-	cpi		ZH, 0x18		; Set Zero-flag if we're accessing the ports
-.ENDMACRO
-
-
-
-
-.MACRO 	ClearNZ
-	cbr		CPU_STATUS, MASK_FLAG_NEGATIVE
-	cbr		CPU_STATUS, MASK_FLAG_ZERO
-.ENDMACRO
-
-
-
-.MACRO 	ClearCZ
-	cbr		CPU_STATUS, MASK_FLAG_CARRY
-	cbr		CPU_STATUS, MASK_FLAG_ZERO
-.ENDMACRO
-
-
-
-.MACRO 	ClearNCZ
-	cbr		CPU_STATUS, MASK_FLAG_NEGATIVE
-	cbr		CPU_STATUS, MASK_FLAG_CARRY
-	cbr		CPU_STATUS, MASK_FLAG_ZERO
-.ENDMACRO
-
-
-
-.MACRO	ClearZVN
-	cbr		CPU_STATUS, MASK_FLAG_ZERO
-	cbr		CPU_STATUS, MASK_FLAG_OVERFLOW
-	cbr		CPU_STATUS, MASK_FLAG_NEGATIVE
-.ENDMACRO
-
-
-
-.MACRO	ClearCZVN
-	cbr		CPU_STATUS, MASK_FLAG_CARRY
-	cbr		CPU_STATUS, MASK_FLAG_ZERO
-	cbr		CPU_STATUS, MASK_FLAG_OVERFLOW
-	cbr		CPU_STATUS, MASK_FLAG_NEGATIVE
-.ENDMACRO
-
-
-
-.MACRO 	UpdateNZjmpLoop
-	brne	NotZero
-	; Zero flag is set in AVR, we don't need to check for Negative
-	sbr		CPU_STATUS, MASK_FLAG_ZERO
-	jmp 	loop
-NotZero:
-	brpl	IsPositive
-	; Negative flag set in AVR
-	sbr		CPU_STATUS, MASK_FLAG_NEGATIVE
-IsPositive:
-	jmp loop
-.ENDMACRO
-
-
-
-.MACRO 	UpdateCZjmpLoop	
-	brcc	NoCarry
-	; Carry flag is set in AVR
-	sbr		CPU_STATUS, MASK_FLAG_CARRY
-NoCarry:
-	brne	NotZero
-	; Zero flag is set in AVR
-	sbr		CPU_STATUS, MASK_FLAG_ZERO	
-NotZero:
-	jmp loop
-.ENDMACRO
-
-
-
-.MACRO 	UpdateNCZjmpLoop
-	brcc	NoCarry
-	; Carry flag is set in AVR
-	sbr		CPU_STATUS, MASK_FLAG_CARRY
-NoCarry:
-	brne	NotZero
-	; Zero flag is set in AVR, we don't need to check for Negative
-	sbr		CPU_STATUS, MASK_FLAG_ZERO	
-	jmp loop
-NotZero:
-	brpl	IsPositive
-	; Negative flag set in AVR
-	sbr		CPU_STATUS, MASK_FLAG_NEGATIVE
-IsPositive:
-	jmp loop
-.ENDMACRO
-
-
-
-.MACRO 	UpdateNCZVjmpLoop
-	; TODO Handle Overflow
-	brcc	NoCarry
-	; Carry flag is set in AVR
-	sbr		CPU_STATUS, MASK_FLAG_CARRY
-NoCarry:
-	brne	NotZero
-	; Zero flag is set in AVR, we don't need to check for Negative
-	sbr		CPU_STATUS, MASK_FLAG_ZERO	
-	jmp loop
-NotZero:
-	brpl	IsPositive
-	; Negative flag set in AVR
-	sbr		CPU_STATUS, MASK_FLAG_NEGATIVE
-IsPositive:
-	jmp loop
-.ENDMACRO
-
-
-
-.MACRO UpdateCarryFromCPU
-	clc
-	sbrc	CPU_STATUS, MASK_FLAG_CARRY
-	sec
-.ENDMACRO
-
-
-.MACRO BranchJUMP
-	sbrc	r16, 7		; Is offset negative?
-	rjmp	negative
-	add		CPU_PCL, r16
-	adc		CPU_PCH, r0
-	jmp 	loop
-negative:
-	com		r16
-	inc		r16
-	sub		CPU_PCL, r16
-	sbc		CPU_PCH, r0
-	jmp		loop	
-.ENDMACRO	
-
-
-
-.LIST
-
-
-
+	.INCLUDE "macros.inc"
 
 	.CSEG
-	.ORG 0x0000
+	.INCLUDE "InterruptVectors.inc"
 
-
-
-	jmp		V_RESET			; Reset Handler
-	jmp		V_EXT_INT0		; IRQ0 Handler
-	jmp		V_EXT_INT1		; IRQ1 Handler
-	jmp		V_PCINT0			; PCINT0 Handler
-	jmp		V_PCINT1			; PCINT1 Handler
-	jmp		V_PCINT2			; PCINT2 Handler
-	jmp		V_WDT				; Watchdog Timer Handler
-	jmp		V_TIM2_COMPA		; Timer2 Compare A Handler
-	jmp		V_TIM2_COMPB		; Timer2 Compare B Handler
-	jmp		V_TIM2_OVF		; Timer2 Overflow Handler
-	jmp		V_TIM1_CAPT		; Timer1 Capture Handler
-	jmp		V_TIM1_COMPA		; Timer1 Compare A Handler
-	jmp		V_TIM1_COMPB		; Timer1 Compare B Handler
-	jmp		V_TIM1_OVF		; Timer1 Overflow Handler
-	jmp		V_TIM0_COMPA		; Timer0 Compare A Handler
-	jmp		V_TIM0_COMPB		; Timer0 Compare B Handler
-	jmp		V_TIM0_OVF		; Timer0 Overflow Handler
-	jmp		V_SPI_STC			; SPI Transfer Complete Handler
-	jmp		V_USART_RXC		; USART, RX Complete Handler
-	jmp		V_USART_UDRE		; USART, UDR Empty Handler
-	jmp		V_USART_TXC		; USART, TX Complete Handler
-	jmp		V_ADC				; ADC Conversion Complete Handler
-	jmp		V_EE_RDY			; EEPROM Ready Handler
-	jmp		V_ANA_COMP		; Analog Comparator Handler
-	jmp		V_TWI				; 2-wire Serial Interface Handler
-	jmp		V_SPM_RDY			; Store Program Memory Ready Handler
-
-
-V_EXT_INT0:					; IRQ0 Handler
-	reti
-
-V_EXT_INT1:					; IRQ1 Handler
-	reti
-
-V_PCINT0:					; PCINT0 Handler
-	reti
-
-V_PCINT1:					; PCINT1 Handler
-	reti
-
-V_PCINT2:					; PCINT2 Handler
-	reti
-
-V_WDT:						; Watchdog Timer Handler
-	reti
-
-V_TIM2_COMPA:				; Timer2 Compare A Handler
-	reti
-
-V_TIM2_COMPB:					; Timer2 Compare B Handler
-	reti
-
-V_TIM2_OVF:					; Timer2 Overflow Handler
-	reti
-
-V_TIM1_CAPT:				; Timer1 Capture Handler
-	reti
-
-V_TIM1_COMPA:				; Timer1 Compare A Handler
-	reti
-
-V_TIM1_COMPB:				; Timer1 Compare B Handler
-	reti
-
-V_TIM1_OVF:					; Timer1 Overflow Handler
-	reti
-
-V_TIM0_COMPA:				; Timer0 Compare A Handler
-	reti
-
-V_TIM0_COMPB:				; Timer0 Compare B Handler
-	reti
-
-V_TIM0_OVF:					; Timer0 Overflow Handler
-	reti
-
-V_SPI_STC:					; SPI Transfer Complete Handler
-	reti
-
-V_USART_RXC:				; USART, RX Complete Handler
-	reti
-
-V_USART_UDRE:				; USART, UDR Empty Handler
-	reti
-
-V_USART_TXC:				; USART, TX Complete Handler
-	reti
-
-V_ADC:						; ADC Conversion Complete Handler
-	reti
-
-V_EE_RDY:					; EEPROM Ready Handler
-	reti
-
-V_ANA_COMP:					; Analog Comparator Handler
-	reti
-
-V_TWI:						; 2-wire Serial Interface Handler
-	reti
-
-V_SPM_RDY:					; Store Program Memory Ready Handler
-	reti
-
-
-dely:
-; ============================= 
-;    delay loop generator 
-;     20000000 cycles:
-; ----------------------------- 
-; delaying 19999992 cycles:
-          ldi  R17, $10
-WGLOOP0:  ldi  R18, $A7
-WGLOOP1:  ldi  R19, $D0
-WGLOOP2:  dec  R19
-          brne WGLOOP2
-          dec  R18
-          brne WGLOOP1
-          dec  R17
-          brne WGLOOP0
-; ----------------------------- 
-; delaying 6 cycles:
-          ldi  R17, $02
-WGLOOP3:  dec  R17
-          brne WGLOOP3
-; ----------------------------- 
-; delaying 2 cycles:
-          nop
-          nop
-; ============================= 
-
-
-	ret
-
-
-
+	.CSEG
 V_RESET:
 	cli	
 	ldi		r16,LOW(AVRSTACK) ;Initiate Stackpointer
@@ -487,99 +138,73 @@ V_RESET:
 	ldi		r16,HIGH(AVRSTACK)
 	out		SPH,r16
 
-	ldi		r16,0xff
-	out		DDRD, r16
-
-	ldi		r16, 0x3F
-	out		DDRC, r16
-
-
-fooloop:
-	ldi		r16,0b11111110
-	out		PORTD, r16
-	ldi		r16,1
-	out		PORTC, r16
-	call	dely
-	ldi		r16,0
-	out		PORTC, r16
-
-
-	ldi		r16,0b11111101
-	out		PORTD, r16
-	ldi		r16,2
-	out		PORTC, r16
-	call	dely
-	ldi		r16,0
-	out		PORTC, r16
-
-
-	ldi		r16,0b11111011
-	out		PORTD, r16
-	ldi		r16,4
-	out		PORTC, r16
-	call	dely
-	ldi		r16,0
-	out		PORTC, r16
-
-	ldi		r16,0b11110111
-	out		PORTD, r16
-	ldi		r16,8
-	out		PORTC, r16
-	call	dely
-	ldi		r16,0
-	out		PORTC, r16
-
-	ldi		r16,0b11101111
-	out		PORTD, r16
-	ldi		r16,16
-	out		PORTC, r16
-	call	dely
-	ldi		r16,0
-	out		PORTC, r16
-
-	ldi		r16,0b11011111
-	out		PORTD, r16
-	ldi		r16,32
-	out		PORTC, r16
-	call	dely
-	ldi		r16,0
-	out		PORTC, r16
-
-	jmp fooloop
-
-
-
-
-
-
-
-
-
-
-
 	clr		r0				; r0 is set permanently to 0 for 16-bit additions
 
-   ; Copy the initial values for the coefficient table from Flash into RAM. 
+   ; Copy the initial values for the BIOS from Flash into RAM. 
 	ldi 	ZH, high(BiosFlashData<< 1) 
 	ldi 	ZL, low(BiosFlashData<< 1) 
 	ldi 	XH, high(Bios) 
 	ldi 	XL, low(Bios) 
 	ldi 	YL, low(1024)
 	ldi 	YH, high(1024)
-CBFF_Loop: 
+BiosCopyLoop: 
 	lpm 	r17, Z+ 
 	st X+, 	r17 
 	sbiw 	Y,1 
-	brne 	CBFF_Loop
+	brne 	BiosCopyLoop
 
-	ldi		CPU_PCL, 0x4f	; KIM-1 BIOS starts at $1c4f
-	ldi		CPU_PCH, 0x1c
+	ldi		CPU_PCL, low(0x1C4F)	; KIM-1 BIOS starts at $1c4f
+	ldi		CPU_PCH, high(0x1C4F)
 	ldi		CPU_ACC, 0		; Initialize all register to zero
 	ldi		CPU_X, 0
 	ldi		CPU_Y, 0
 	ldi		CPU_STATUS, 0
 	ldi		CPU_SP, 0
 
+;
+; Include and execute the 6502 code test functions if TEST is #defined
+; If successful the test code should end up in a 6502 HERE: JMP HERE
+; If any test fail the code ends up in a BRK instruction
+;
+#ifdef TEST
+	ldi		CPU_PCL, low(0x0200);	; The test code starts at $200
+	ldi		CPU_PCH, high(0x0200);
+
+	; Copy the data for the 6502 Test code from Flash into RAM. 
+	ldi 	ZH, high(Test6502Data<< 1) 
+	ldi 	ZL, low(Test6502Data<< 1) 
+	ldi 	XH, high(KIM1RAM+512) 
+	ldi 	XL, low(KIM1RAM+512) 
+	ldi 	YL, low(512)
+	ldi 	YH, high(512)
+
+Test6502CopyLoop: 
+	lpm 	r17, Z+ 
+	st X+, 	r17 
+	sbiw 	Y,1 
+	brne 	Test6502CopyLoop
+
+	jmp		Test6502DataEnd
+
+TestOk:
+	jmp		TestOk
+
+TestFail:
+	jmp		TestFail
+
+Test6502Data:
+	.INCLUDE "../test/test6502.inc"
+
+Test6502DataEnd:
+#endif
+;
+;
+;
+
+
+	;
+	; Fetch the Opcode pointed by CPU_PCL/H
+	;
 loop:
 	mov		TEMP, YH
 	andi	YH, 7			; Wrap addresspace to get access to BIOS at 0x1C00-0x1FFF as 0x0400
@@ -3022,277 +2647,18 @@ OP_TYA:					; *** $98 - TYA
 	
 
 
-
-
-;-----------------------------------------------------------------------------
 ;
-; Start of tables - Align PC to a page boundry
 ;
-;-----------------------------------------------------------------------------
-
-	.ORG ((PC>>8)+1)<<8
-
-OpJumpTable: 
-	jmp		OP_BRK		; 00 BRK
-	jmp		OP_ORA_IX	; 01 ORA - (Indirect,X)
-	jmp		OP_NOP		; 02 
-	jmp		OP_NOP		; 03 
-	jmp		OP_NOP		; 04 
-	jmp		OP_ORA_ZP	; 05 ORA - Zero Page
-	jmp		OP_ASL_ZP	; 06 ASL - Zero Page
-	jmp		OP_NOP		; 07 
-	jmp		OP_PHP		; 08 PHP
-	jmp		OP_ORA_IM	; 09 ORA - Immediate
-	jmp		OP_ASL_AC	; 0A ASL - Accumulator
-	jmp		OP_NOP		; 0B 
-	jmp		OP_NOP		; 0C 
-	jmp		OP_ORA_AB	; 0D ORA - Absolute
-	jmp		OP_ASL_AB	; 0E ASL - Absolute
-	jmp		OP_NOP		; 0F 
-	jmp		OP_BPL		; 10 BPL
-	jmp		OP_ORA_IY	; 	11 ORA - (Indirect),Y
-	jmp		OP_NOP		; 12 
-	jmp		OP_NOP		; 13 
-	jmp		OP_NOP		; 14 
-	jmp		OP_ORA_ZPX	; 15 ORA - Zero Page,X
-	jmp		OP_ASL_ZPX	; 16 ASL - Zero Page,X
-	jmp		OP_NOP		; 17 
-	jmp		OP_CLC		; 18 CLC
-	jmp		OP_ORA_ABY	; 19 ORA - Absolute,Y
-	jmp		OP_NOP		; 1A 
-	jmp		OP_NOP		; 1B 
-	jmp		OP_NOP		; 1C 
-	jmp		OP_ORA_ABX	; 1D ORA - Absolute,X
-	jmp		OP_ASL_ABX	; 1E ASL - Absolute,X
-	jmp		OP_NOP		; 1F 
-	jmp		OP_JSR		; 20 JSR
-	jmp		OP_AND_IX	; 21 AND - (Indirect,X)
-	jmp		OP_NOP		; 22 
-	jmp		OP_NOP		; 23 
-	jmp		OP_BIT_ZP	; 24 BIT - Zero Page
-	jmp		OP_AND_ZP	; 25 AND - Zero Page
-	jmp		OP_ROL_ZP	; 26 ROL - Zero Page
-	jmp		OP_NOP		; 27 
-	jmp		OP_PLP		; 28 PLP
-	jmp		OP_AND_IM	; 29 AND - Immediate
-	jmp		OP_ROL_AC	; 2A ROL - Accumulator
-	jmp		OP_NOP		; 2B 
-	jmp		OP_BIT_AB	; 2C BIT - Absolute
-	jmp		OP_AND_AB	; 2D AND - Absolute
-	jmp		OP_ROL_AB	; 2E ROL - Absolute
-	jmp		OP_NOP		; 2F 
-	jmp		OP_BMI		; 30 BMI
-	jmp		OP_AND_IY	; 31 AND - (Indirect),Y
-	jmp		OP_NOP		; 32 
-	jmp		OP_NOP		; 33 
-	jmp		OP_NOP		; 34 
-	jmp		OP_AND_ZPX	; 35 AND - Zero Page,X
-	jmp		OP_ROL_ZPX	; 36 ROL - Zero Page,X
-	jmp		OP_NOP		; 37 
-	jmp		OP_SEC		; 38 SEC
-	jmp		OP_AND_ABY	; 39 AND - Absolute,Y
-	jmp		OP_NOP		; 3A 
-	jmp		OP_NOP		; 3B 
-	jmp		OP_NOP		; 3C 
-	jmp		OP_AND_ABX	; 3D AND - Absolute,X
-	jmp		OP_ROL_ABX	; 3E ROL - Absolute,X
-	jmp		OP_NOP		; 3F 
-	jmp		OP_RTI		; 40 RTI
-	jmp		OP_EOR_IX	; 41 EOR - (Indirect,X)
-	jmp		OP_NOP		; 42 
-	jmp		OP_NOP		; 43 
-	jmp		OP_NOP		; 44 
-	jmp		OP_EOR_ZP	; 45 EOR - Zero Page
-	jmp		OP_LSR_ZP	; 46 LSR - Zero Page
-	jmp		OP_NOP		; 47 
-	jmp		OP_PHA		; 48 PHA
-	jmp		OP_EOR_IM	; 49 EOR - Immediate
-	jmp		OP_LSR_AC	; 4A LSR - Accumulator
-	jmp		OP_NOP		; 4B 
-	jmp		OP_JMP_AB	; 4C JMP - Absolute
-	jmp		OP_EOR_AB	; 4D EOR - Absolute
-	jmp		OP_LSR_AB	; 4E LSR - Absolute
-	jmp		OP_NOP		; 4F 
-	jmp		OP_BVC		; 50 BVC
-	jmp		OP_EOR_IY	; 51 EOR - (Indirect),Y
-	jmp		OP_NOP		; 52 
-	jmp		OP_NOP		; 53 
-	jmp		OP_NOP		; 54 
-	jmp		OP_EOR_ZPX	; 55 EOR - Zero Page,X
-	jmp		OP_LSR_ZPX	; 56 LSR - Zero Page,X
-	jmp		OP_NOP		; 57 
-	jmp		OP_CLI		; 58 CLI
-	jmp		OP_EOR_ABY	; 59 EOR - Absolute,Y
-	jmp		OP_NOP		; 5A 
-	jmp		OP_NOP		; 5B 
-	jmp		OP_NOP		; 5C 
-	jmp		OP_EOR_ABX	; 5D EOR - Absolute,X
-	jmp		OP_LSR_ABX	; 5E LSR - Absolute,X
-	jmp		OP_NOP		; 5F 
-	jmp		OP_RTS		; 60 RTS
-	jmp		OP_ADC_IX	; 61 ADC - (Indirect,X)
-	jmp		OP_NOP		; 62 
-	jmp		OP_NOP		; 63 
-	jmp		OP_NOP		; 64 
-	jmp		OP_ADC_ZP	; 65 ADC - Zero Page
-	jmp		OP_ROR_ZP	; 66 ROR - Zero Page
-	jmp		OP_NOP		; 67 
-	jmp		OP_PLA		; 68 PLA
-	jmp		OP_ADC_IM	; 69 ADC - Immediate
-	jmp		OP_ROR_AC	; 6A ROR - Accumulator
-	jmp		OP_NOP		; 6B 
-	jmp		OP_JMP_IND	; 6C JMP - Indirect
-	jmp		OP_ADC_AB	; 6D ADC - Absolute
-	jmp		OP_ROR_AB	; 6E ROR - Absolute
-	jmp		OP_NOP		; 6F 
-	jmp		OP_BVS		; 70 BVS
-	jmp		OP_ADC_IY	; 71 ADC - (Indirect),Y
-	jmp		OP_NOP		; 72 
-	jmp		OP_NOP		; 73 
-	jmp		OP_NOP		; 74 
-	jmp		OP_ADC_ZPX	; 75 ADC - Zero Page,X
-	jmp		OP_ROR_ZPX	; 76 ROR - Zero Page,X
-	jmp		OP_NOP		; 77 
-	jmp		OP_SEI		; 78 SEI
-	jmp		OP_ADC_ABY	; 79 ADC - Absolute,Y
-	jmp		OP_NOP		; 7A 
-	jmp		OP_NOP		; 7B 
-	jmp		OP_NOP		; 7C 
-	jmp		OP_ADC_ABX	; 7D ADC - Absolute,X
-	jmp		OP_ROR_ABX	; 7E ROR - Absolute,X
-	jmp		OP_NOP		; 7F 
-	jmp		OP_NOP		; 80 
-	jmp		OP_STA_IX	; 81 STA - (Indirect,X)
-	jmp		OP_NOP		; 82 
-	jmp		OP_NOP		; 83 
-	jmp		OP_STY_ZP	; 84 STY - Zero Page
-	jmp		OP_STA_ZP	; 85 STA - Zero Page
-	jmp		OP_STX_ZP	; 86 STX - Zero Page
-	jmp		OP_NOP		; 87 
-	jmp		OP_DEY		; 88 DEY
-	jmp		OP_NOP		; 89 
-	jmp		OP_TXA		; 8A TXA
-	jmp		OP_NOP		; 8B 
-	jmp		OP_STY_AB	; 8C STY - Absolute
-	jmp		OP_STA_AB	; 8D STA - Absolute
-	jmp		OP_STX_AB	; 8E STX - Absolute
-	jmp		OP_NOP		; 8F 
-	jmp		OP_BCC		; 90 BCC
-	jmp		OP_STA_IY	; 91 STA - (Indirect),Y
-	jmp		OP_NOP		; 92 
-	jmp		OP_NOP		; 93 
-	jmp		OP_STY_ZPX	; 94 STY - Zero Page,X
-	jmp		OP_STA_ZPX	; 95 STA - Zero Page,X
-	jmp		OP_STX_ZPY	; 96 STX - Zero Page,Y
-	jmp		OP_NOP		; 97 
-	jmp		OP_TYA		; 98 TYA
-	jmp		OP_STA_ABY	; 99 STA - Absolute,Y
-	jmp		OP_TXS		; 9A TXS
-	jmp		OP_NOP		; 9B 
-	jmp		OP_NOP		; 9C 
-	jmp		OP_STA_ABX	; 9D STA - Absolute,X
-	jmp		OP_NOP		; 9E 
-	jmp		OP_NOP		; 9F 
-	jmp		OP_LDY_IM	; A0 LDY - Immediate
-	jmp		OP_LDA_IX	; A1 LDA - (Indirect,X)
-	jmp		OP_LDX_IM	; A2 LDX - Immediate
-	jmp		OP_NOP		; A3 
-	jmp		OP_LDY_ZP	; A4 LDY - Zero Page
-	jmp		OP_LDA_ZP	; A5 LDA - Zero Page
-	jmp		OP_LDX_ZP	; A6 LDX - Zero Page
-	jmp		OP_NOP		; A7 
-	jmp		OP_TAY		; A8 TAY
-	jmp		OP_LDA_IM	; A9 LDA - Immediate
-	jmp		OP_TAX		; AA TAX
-	jmp		OP_NOP		; AB 
-	jmp		OP_LDY_AB	; AC LDY - Absolute
-	jmp		OP_LDA_AB	; AD LDA - Absolute
-	jmp		OP_LDX_AB	; AE LDX - Absolute
-	jmp		OP_NOP		; AF 
-	jmp		OP_BCS		; B0 BCS
-	jmp		OP_LDA_IY	; B1 LDA - (Indirect),Y
-	jmp		OP_NOP		; B2 
-	jmp		OP_NOP		; B3 
-	jmp		OP_LDY_ZPX	; B4 LDY - Zero Page,X
-	jmp		OP_LDA_ZPX	; B5 LDA - Zero Page,X
-	jmp		OP_LDX_ZPY	; B6 LDX - Zero Page,Y
-	jmp		OP_NOP		; B7 
-	jmp		OP_CLV		; B8 CLV
-	jmp		OP_LDA_ABY	; B9 LDA - Absolute,Y
-	jmp		OP_TSX		; BA TSX
-	jmp		OP_NOP		; BB 
-	jmp		OP_LDY_ABX	; BC LDY - Absolute,X
-	jmp		OP_LDA_ABX	; BD LDA - Absolute,X
-	jmp		OP_LDX_ABY	; BE LDX - Absolute,Y
-	jmp		OP_NOP		; BF 
-	jmp		OP_CPY_IM	; C0 CPY - Immediate
-	jmp		OP_CMP_IX	; C1 CMP - (Indirect,X)
-	jmp		OP_NOP		; C2 
-	jmp		OP_NOP		; C3 
-	jmp		OP_CPY_ZP	; C4 CPY - Zero Page
-	jmp		OP_CMP_ZP	; C5 CMP - Zero Page
-	jmp		OP_DEC_ZP	; C6 DEC - Zero Page
-	jmp		OP_NOP		; C7 
-	jmp		OP_INY		; C8 INY
-	jmp		OP_CMP_IM	; C9 CMP - Immediate
-	jmp		OP_DEX		; CA DEX
-	jmp		OP_NOP		; CB 
-	jmp		OP_CPY_AB	; CC CPY - Absolute
-	jmp		OP_CMP_AB	; CD CMP - Absolute
-	jmp		OP_DEC_AB	; CE DEC - Absolute
-	jmp		OP_NOP		; CF 
-	jmp		OP_BNE		; D0 BNE
-	jmp		OP_CMP_IY	; D1 CMP   (Indirect@,Y
-	jmp		OP_NOP		; D2 
-	jmp		OP_NOP		; D3 
-	jmp		OP_NOP		; D4 
-	jmp		OP_CMP_ZPX	; D5 CMP - Zero Page,X
-	jmp		OP_DEC_ZPX	; D6 DEC - Zero Page,X
-	jmp		OP_NOP		; D7 
-	jmp		OP_CLD		; D8 CLD
-	jmp		OP_CMP_ABY	; D9 CMP - Absolute,Y
-	jmp		OP_NOP		; DA 
-	jmp		OP_NOP		; DB 
-	jmp		OP_NOP		; DC 
-	jmp		OP_CMP_ABX	; DD CMP - Absolute,X
-	jmp		OP_DEC_ABX	; DE DEC - Absolute,X
-	jmp		OP_NOP		; DF 
-	jmp		OP_CPX_IM	; E0 CPX - Immediate
-	jmp		OP_SBC_IX	; E1 SBC - (Indirect,X)
-	jmp		OP_NOP		; E2 
-	jmp		OP_NOP		; E3 
-	jmp		OP_CPX_ZP	; E4 CPX - Zero Page
-	jmp		OP_SBC_ZP	; E5 SBC - Zero Page
-	jmp		OP_INC_ZP	; E6 INC - Zero Page
-	jmp		OP_NOP		; E7 
-	jmp		OP_INX		; E8 INX
-	jmp		OP_SBC_IM	; E9 SBC - Immediate
-	jmp		OP_NOP		; EA NOP
-	jmp		OP_NOP		; EB 
-	jmp		OP_CPX_AB	; EC CPX - Absolute
-	jmp		OP_SBC_AB	; ED SBC - Absolute
-	jmp		OP_INC_AB	; EE INC - Absolute
-	jmp		OP_NOP		; EF 
-	jmp		OP_BEQ		; F0 BEQ
-	jmp		OP_SBC_IY	; F1 SBC - (Indirect),Y
-	jmp		OP_NOP		; F2 
-	jmp		OP_NOP		; F3 
-	jmp		OP_NOP		; F4 
-	jmp		OP_SBC_ZPX	; F5 SBC - Zero Page,X
-	jmp		OP_INC_ZPX	; F6 INC - Zero Page,X
-	jmp		OP_NOP		; F7 
-	jmp		OP_SED		; F8 SED
-	jmp		OP_SBC_ABY	; F9 SBC - Absolute,Y
-	jmp		OP_NOP		; FA 
-	jmp		OP_NOP		; FB 
-	jmp		OP_NOP		; FC 
-	jmp		OP_SBC_ABX	; FD SBC - Absolute,X
-	jmp		OP_INC_ABX	; FE INC - Absolute,X
-	jmp		OP_NOP		; FF 
+;
+	.INCLUDE "OpCodeJumpTable.inc"
 	
-
+;
+;
+;
 BiosFlashData:
-   	.INCLUDE "../bios/bios-kim1.inc"
+	.INCLUDE "../bios/bios-kim1.inc"
+
+
 	
 	.EXIT
 

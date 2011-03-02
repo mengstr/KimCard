@@ -12,23 +12,50 @@
     <Name>kimcard</Name>
     <RootNamespace>kimcard</RootNamespace>
     <EntryFile>$(MSBuildProjectDirectory)\kimcard.asm</EntryFile>
+    <avrtool>com.atmel.avrdbg.tool.simulator</avrtool>
+    <avrtoolinterface />
+    <com_atmel_avrdbg_tool_simulator>
+      <ToolType xmlns="">com.atmel.avrdbg.tool.simulator</ToolType>
+      <ToolName xmlns="">AVR Simulator</ToolName>
+      <ToolNumber xmlns="">
+      </ToolNumber>
+      <Channel xmlns="">
+        <host>127.0.0.1</host>
+        <port>58488</port>
+        <ssl>False</ssl>
+      </Channel>
+    </com_atmel_avrdbg_tool_simulator>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
     <ToolchainSettings>
       <AvrAssembler>
+  <avrasm.assembler.general.UnsupportedInstructions>Error</avrasm.assembler.general.UnsupportedInstructions>
   <avrasm.assembler.general.IncludeFile>m644adef.inc</avrasm.assembler.general.IncludeFile>
 </AvrAssembler>
     </ToolchainSettings>
+    <GenerateMapFile>True</GenerateMapFile>
+    <GenerateEepFile>True</GenerateEepFile>
+    <GenerateHexFile>True</GenerateHexFile>
+    <GenerateListFile>True</GenerateListFile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
     <ToolchainSettings>
       <AvrAssembler>
-  <avrasm.assembler.general.IncludeFile>m644adef.inc</avrasm.assembler.general.IncludeFile>
-</AvrAssembler>
+        <avrasm.assembler.general.IncludeFile>m644adef.inc</avrasm.assembler.general.IncludeFile>
+      </AvrAssembler>
     </ToolchainSettings>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="InterruptVectors.inc">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="kimcard.asm">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Macros.inc">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="OpCodeJumpTable.inc">
       <SubType>Code</SubType>
     </Compile>
   </ItemGroup>

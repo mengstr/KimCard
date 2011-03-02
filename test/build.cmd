@@ -1,10 +1,8 @@
 @echo off
 
-..\utils\xasm.exe /l bios-kim1.a6502
-rename bios-kim1.obx bios.bin
-..\utils\bin2hex.exe /I6 bios.bin
-rename bios.bin bios-kim1.bin
-rename bios.hex bios-kim1.hex
+..\utils\xasm.exe /l test6502.a6502
+copy test6502.obx test6502.bin
+..\utils\bin2hex.exe /I6 test6502.bin
 
 rem ***
 rem *** Converts the .HEX -file to .INC 
@@ -26,9 +24,10 @@ rem ***
 setLocal EnableDelayedExpansion
 
 type NUL > tmp.tmp
-for /f "tokens=* delims= " %%a in (bios-kim1.hex) do (
-	set b=%%a
+for /f "tokens=* delims= " %%a in (test6502.hex) do (
+	set b=%%a0000000000000000000000000000000000000000000000000000000000000000
 	echo !b! 
+
 	set bytecount=!b:~1,2!
 	IF NOT !bytecount!==00 (
 		echo/|set /p =____.db 0x!b:~9,2!, >> tmp.tmp
@@ -67,20 +66,20 @@ for /f "tokens=* delims= " %%a in (bios-kim1.hex) do (
 	)
 )
 
-type NUL > bios-kim1.inc
-echo. >> bios-kim1.inc
-echo %; START OF BIOS >> bios-kim1.inc
+type NUL > test6502.inc
+echo. >> test6502.inc
+echo %; START OF TEST6502 >> test6502.inc
 for /f "tokens=* delims= " %%b in (tmp.tmp) do (
 	set c=%%b
-	echo !c:_= ! >> bios-kim1.inc
+	echo !c:_= ! >> test6502.inc
 )
-echo %; END OF BIOS >> bios-kim1.inc
-echo. >> bios-kim1.inc
+echo %; END OF TEST6502 >> test6502.inc
+echo. >> test6502.inc
 
 erase tmp.tmp
 
 echo.
-echo BIOS-KIM1.INC generated.
+echo TEST6502.INC generated.
 echo.
 
 :eof
