@@ -167,16 +167,14 @@ BiosCopyLoop:
 ; If any test fail the code ends up in a BRK instruction
 ;
 #ifdef TEST
-	ldi		CPU_PCL, low(0x0200);	; The test code starts at $200
-	ldi		CPU_PCH, high(0x0200);
 
 	; Copy the data for the 6502 Test code from Flash into RAM. 
 	ldi 	ZH, high(Test6502Data<< 1) 
 	ldi 	ZL, low(Test6502Data<< 1) 
 	ldi 	XH, high(KIM1RAM+512) 
 	ldi 	XL, low(KIM1RAM+512) 
-	ldi 	YL, low(512)
-	ldi 	YH, high(512)
+	ldi		YL, low(0x0200);	; The test code starts at $200
+	ldi		YH, high(0x0200);
 
 Test6502CopyLoop: 
 	lpm 	r17, Z+ 
@@ -184,6 +182,8 @@ Test6502CopyLoop:
 	sbiw 	Y,1 
 	brne 	Test6502CopyLoop
 
+	ldi		CPU_PCL, low(0x0200);	; The test code starts at $200
+	ldi		CPU_PCH, high(0x0200);
 	jmp		Test6502DataEnd
 
 TestOk:
@@ -207,8 +207,10 @@ Test6502DataEnd:
 	;
 loop:
 	mov		TEMP, YH
-	andi	YH, 7			; Wrap addresspace to get access to BIOS at 0x1C00-0x1FFF as 0x0400
-	inc		YH				; Bump up one page for SRAM
+;	andi	YH, 7			; Wrap addresspace to get access to BIOS at 0x1C00-0x1FFF as 0x0400
+;	inc		YH				; Bump up one page for SRAM
+	andi	YH, 0b00001111
+	ori		YH, 0b00000100
 	ld		r16, Y+			; Opcode
 	mov		YH, TEMP
 	ldi 	ZH,high(OpJumpTable) 	
