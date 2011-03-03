@@ -1,0 +1,10 @@
+*.bak
+*.hex
+*.HEX
+*.bin
+*.inc
+*.lst
+*.obx
+*/Debug/*
+*/Release/*
+
