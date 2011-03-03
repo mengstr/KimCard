@@ -3,7 +3,6 @@ rem ***
 rem *** Cleans up all temporary and files that that will be reproduced by a build
 rem ***
 
-echo.
 echo/|set /p =Cleaning directory...
 
 type NUL>tmp.tmp && erase/q tmp.tmp
@@ -14,8 +13,8 @@ type NUL>foo.bin && erase/q *.bin
 type NUL>foo.hex && erase/q *.hex
 type NUL>foo.inc && erase/q *.inc
 
+echo Done.
 
-echo/|set /p =Done.
-echo.
-
+IF "%1"=="/NODELAY" GOTO Continue
 timeout 3
+:Continue

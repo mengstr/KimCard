@@ -7,22 +7,23 @@ echo.
 
 type NUL>foo.bak && erase/q *.bak
 
-echo Cleaning directory TEST
+echo TEST
 cd test
-call clean.cmd
+call clean.cmd /NODELAY
 cd ..
 
-echo Cleaning directory BIOS
+echo BIOS
 cd bios
-call clean.cmd
+call clean.cmd /NODELAY
 cd ..
 
-echo Cleaning directory KIMCARD
+echo KIMCARD
 cd kimcard
-call clean.cmd
+call clean.cmd /NODELAY
 cd ..
 
+echo.
 echo All done.
 echo.
 
-timeout 3
+timeout 5
