@@ -1,6 +1,7 @@
 .NOLIST
 .INCLUDE "m644adef.inc"
 .LIST
+
 .LISTMAC 
 
 #define TEST
@@ -8,7 +9,7 @@
 
 
 ;
-; ATMEGA328 PORT				USED FOR 
+; ATMEGA644 PORT				USED FOR 
 ; -------------------------		----------------------------
 ; PB0 (PCINT0/CLKO/ICP1)
 ; PB1 (OC1A/PCINT1)
@@ -106,8 +107,9 @@
 	.def	CPU_STATUS		= r22
 	.def	CPU_SP			= r23
 
-	.def	CPU_PCH			= r29;	YH
-	.def	CPU_PCL			= r28;	YL
+#define CPU_PC			Y
+#define	CPU_PCH			YH
+#define CPU_PCL			YL
 
 	.equ	BIOS			= 0x0c00
 	.equ	AVRSTACKSIZE	= 256	
@@ -206,13 +208,11 @@ Test6502DataEnd:
 	; Fetch the Opcode pointed by CPU_PCL/H
 	;
 loop:
-	mov		TEMP, YH
-;	andi	YH, 7			; Wrap addresspace to get access to BIOS at 0x1C00-0x1FFF as 0x0400
-;	inc		YH				; Bump up one page for SRAM
-	andi	YH, 0b00001111
-	ori		YH, 0b00000100
-	ld		r16, Y+			; Opcode
-	mov		YH, TEMP
+	mov		TEMP, CPU_PCH
+	andi	CPU_PCH, 0b00001111
+	ori		CPU_PCH, 0b00000100
+	ld		r16, CPU_PC+			; Opcode
+	mov		CPU_PCH, TEMP
 	ldi 	ZH,high(OpJumpTable) 	
 	ldi 	ZL,low(OpJumpTable) 
 	add 	ZL, r16 			; First add can never generate carry since 
@@ -341,7 +341,7 @@ a2:	jmp loop
 ;
 
 OP_RTI:					; *** $40 - RTI
-	ldi		ZH, 2		; Stack is 0x100-0x1FF on 6502. Offset this with one page for SRAM
+	ldi		ZH, 4+1		; Stack is 0x100-0x1FF on 6502. Offset this with four pages for SRAM
 	mov		ZL,	CPU_SP
 
 	inc		CPU_SP		
@@ -768,7 +768,7 @@ OP_CPY_AB:				; *** $CC - CPY ABSOLUTE
 ; N Negative Flag		-
 ;
 OP_PHA:				; ** $48 - PHA
-	ldi		ZH, 2		; Stack is 0x100-0x1FF on 6502. Offset this with one page for SRAM
+	ldi		ZH, 4+1		; Stack is 0x100-0x1FF on 6502. Offset this with four pages for SRAM
 	mov		ZL,	CPU_SP
 	st		Z, CPU_ACC
 	dec		CPU_SP		
@@ -792,7 +792,7 @@ OP_PHA:				; ** $48 - PHA
 ;
 
 OP_PHP:					; *** $08 - PHP
-	ldi		ZH, 2		; Stack is 0x100-0x1FF on 6502. Offset this with one page for SRAM
+	ldi		ZH, 4+1		; Stack is 0x100-0x1FF on 6502. Offset this with four pages for SRAM
 	mov		ZL,	CPU_SP
 	st		Z, CPU_STATUS
 	dec		CPU_SP		
@@ -819,7 +819,7 @@ OP_PHP:					; *** $08 - PHP
 	
 OP_PLA:					; *** $68 - PLA
 	ClearNZ
-	ldi		ZH, 2		; Stack is 0x100-0x1FF on 6502. Offset this with one page for SRAM
+	ldi		ZH, 4+1		; Stack is 0x100-0x1FF on 6502. Offset this with four pages for SRAM
 	mov		ZL,	CPU_SP
 	inc		CPU_SP
 	inc		ZL
@@ -845,7 +845,7 @@ OP_PLA:					; *** $68 - PLA
 ;
 
 OP_PLP:					; *** $28 - PLP
-	ldi		ZH, 2		; Stack is 0x100-0x1FF on 6502. Offset this with one page for SRAM
+	ldi		ZH, 4+1		; Stack is 0x100-0x1FF on 6502. Offset this with four pages for SRAM
 	mov		ZL,	CPU_SP
 	inc		CPU_SP		
 	inc 	ZL
@@ -1835,6 +1835,7 @@ OP_LDA_IM:				; *** $A9 - LDA IMMEDIATE
 	ClearNZ
 	HandleIMMEDIATE
 	mov		CPU_ACC, ZL
+	tst		CPU_ACC
 	UpdateNZjmpLoop
 	
 
@@ -2202,7 +2203,7 @@ OP_CLV:					; *** $B8 - CLV
  
 
 OP_JMP_AB:				; *** $4C - JMP ABSOLUTE 
-	inc		YH				; Offset for SRAM
+	FixPageNoStore			; Offset for SRAM
 	ld		r16, Y+			; Jump address low
 	ld		r17, Y+			; Jump address hi
 	mov		CPU_PCL, r16
@@ -2211,10 +2212,10 @@ OP_JMP_AB:				; *** $4C - JMP ABSOLUTE
 	
 
 OP_JMP_IND:				; *** $6C - JMP (INDIRECT)
-	inc		YH				; Offset for SRAM
+	FixPageNoStore				; Offset for SRAM
 	ld		ZL, Y+			; Jump indirect address low
 	ld		ZH, Y+			; Jump indirect address hi
-	inc		ZH				; Offset for SRAM
+	FixPageNoStore_Z		; Offset for SRAM
 	ld		r16, Z+			; Jump address low
 	ld		r17, Z+			; Jump address hi
 	mov		CPU_PCL, r16
@@ -2241,7 +2242,7 @@ OP_JMP_IND:				; *** $6C - JMP (INDIRECT)
 
 OP_JSR:					; *** $20 - JSR ABSOLUTE
 	adiw	Y, 1
-	ldi		ZH, 2			; Push current PC to stack
+	ldi		ZH, 4+1			; Push current PC to stack
 	mov		ZL, CPU_SP
 	st		Z, YH
 	dec		ZL
@@ -2250,8 +2251,7 @@ OP_JSR:					; *** $20 - JSR ABSOLUTE
 	dec		CPU_SP
 	sbiw	Y, 1
 
-	andi	YH, 7			; Wrap for BIOS access
-	inc		YH				; Offset for SRAM
+	FixPageNoStore
 	ld		r16, Y+			; Jump address low
 	ld		r17, Y+			; Jump address hi
 	mov		CPU_PCL, r16
@@ -2277,7 +2277,7 @@ OP_JSR:					; *** $20 - JSR ABSOLUTE
 ;
 
 OP_RTS:					; *** $20 - RTS 
-	ldi		ZH, 2
+	ldi		ZH, 4+1
 	mov		ZL, CPU_SP
 	inc		ZL
 	ld		CPU_PCL, Z

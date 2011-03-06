@@ -37,6 +37,7 @@
     <GenerateEepFile>True</GenerateEepFile>
     <GenerateHexFile>True</GenerateHexFile>
     <GenerateListFile>True</GenerateListFile>
+    <UsesExternalMakeFile>False</UsesExternalMakeFile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
     <ToolchainSettings>

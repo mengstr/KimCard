@@ -1,26 +1,49 @@
-	.NOLIST
+;	.NOLIST
+
+.LISTMAC 
+
+.MACRO FixPage
+	mov		TEMP, YH
+	andi	YH, 0b00001111
+	ori		YH, 0b00000100
+.ENDMACRO
+
+
+.MACRO FixPageNoStore
+	andi	YH, 0b00001111
+	ori		YH, 0b00000100
+.ENDMACRO
+
+.MACRO FixPageNoStore_Z
+	andi	ZH, 0b00001111
+	ori		ZH, 0b00000100
+.ENDMACRO
+
+.MACRO RestorePage
+	mov		YH, TEMP
+.ENDMACRO
+
+
 
 .MACRO HandleABSOLUTE
-	mov		TEMP, YH
-	andi	YH, 7			; Wrap addresspace to get access to BIOS at 0x1C00-0x1FFF as 0x0400
-	inc		YH
+	FixPage
 	ld		ZL, Y+			; Absolute Address (low)
 	ld		ZH, Y+			; Absolute Address (high)
 	inc		ZH				; Offset for SRAM
-	mov		YH, TEMP
+	RestorePage
 	cpi		ZH, 0x18		; Set Zero-flag if we're accessing the ports
 .ENDMACRO
 
 
 
 .MACRO HandleABSOLUTE_X
-	inc		YH
+	FixPage
 	ld		ZL, Y+			; Absolute Address (low)
 	ld		ZH, Y+			; Absolute Address (high)
-	inc		ZH				; Offset for SRAM
+	FixPageNoStore
 	add		ZL, CPU_X		; Add X-register to address
 	adc		ZH, r0			; r0 is always zero
-	dec		YH
+	RestorePage
 	cpi		ZH, 0x18		; Set Zero-flag if we're accessing the ports
 .ENDMACRO
 
@@ -28,13 +51,13 @@
 
 
 .MACRO HandleABSOLUTE_Y
-	inc		YH
+	FixPage
 	ld		ZL, Y+			; Absolute Address (low)
 	ld		ZH, Y+			; Absolute Address (high)
-	inc		ZH				; Offset for SRAM
+	FixPageNoStore
 	add		ZL, CPU_Y		; Add Y-register to address
 	adc		ZH, r0			; r0 is always zero
-	dec		YH
+	RestorePage
 	cpi		ZH, 0x18		; Set Zero-flag if we're accessing the ports
 .ENDMACRO
 
@@ -42,10 +65,10 @@
 
 
 .MACRO HandleZEROPAGE
-	inc		YH
+	FixPage
 	ld		ZL, Y+			; ZP Address (low)
-	ldi		ZH, 1			; Offset for SRAM (high)
-	dec		YH
+	ldi		ZH, 4			; Offset for SRAM (high)
+	RestorePage
 .ENDMACRO
 
 
@@ -53,52 +76,52 @@
 
 
 .MACRO HandleZEROPAGE_X
-	inc		YH
+	FixPage
 	ld		ZL, Y+			; ZP Address
 	add		ZL, CPU_X
-	ldi		ZH, 1			; SRAM offset
-	dec		YH
+	ldi		ZH, 4			; SRAM offset
+	RestorePage
 .ENDMACRO
 
 
 
 
 .MACRO HandleZEROPAGE_Y
-	inc		YH
+	FixPage
 	ld		ZL, Y+			; ZP Address
 	add		ZL, CPU_Y
-	ldi		ZH, 1			; SRAM offset
-	dec		YH
+	ldi		ZH, 4			; SRAM offset
+	RestorePage
 .ENDMACRO
 
 
 
 
 .MACRO HandleIMMEDIATE
-	inc		YH
-	ld		ZL, Y+			
-	dec		YH
+	FixPage
+	ld		ZL, CPU_PC+			
+	RestorePage
 .ENDMACRO
 
 
 
 
 .MACRO HandleRelative
-	inc		YH
+	FixPage
 	ld		r16, Y+			; Get offset
-	dec		YH
+	RestorePage
 .ENDMACRO
 
 
 
 
-.MACRO HandleINDIRECT_X
-	inc		YH
+.MACRO HandleINDIRECT_X		; TODO
+	FixPage
 	ld		XL, Y+			; Address (low)
 	ldi		XH, 1			; Address (high) Ofsetted for SRAM
 	add		XL, CPU_X		; Add X-register to address
 	adc		XH, r0			; r0 is always zero
-	dec		YH
+	RestorePage
 	ld		ZL, X+
 	ld		ZH, X+
 	inc		ZH	 			; Offset for SRAM
@@ -108,11 +131,11 @@
 
 
 
-.MACRO HandleINDIRECT_Y
-	inc		YH
+.MACRO HandleINDIRECT_Y		; TODO
+	FixPage
 	ld		XL, Y+			; Address (low)
 	ldi		XH, 1			; Address (high) ofgstted for SRAM
-	dec		YH
+	RestorePage
 	ld		ZL, X+
 	ld		ZH, X+
 	add		ZL, CPU_Y		; Add Y-register to address
@@ -252,5 +275,5 @@ negative:
 	jmp		loop	
 .ENDMACRO	
 
-	.LIST
+;	.LIST
 
