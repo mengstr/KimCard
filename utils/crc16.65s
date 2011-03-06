@@ -1,0 +1,153 @@
+
+CRCLO   .set $0          ; current value of CRC
+CRCHI   .set $1          ; not necessarily contiguous
+
+
+Numberl		.set $02	; number to find square root of low byte
+Numberh		.set $03	; number to find square root of high byte
+Reml		.set $04	; remainder low byte
+Remh		.set $05	; remainder high byte
+templ		.set $06	; temp partial low byte
+temph		.set $07	; temp partial high byte
+Root		.set $08	; square root
+
+	.ORG $0200
+
+
+	JSR	CRCTEST
+	JSR	SquareRootTest
+	NOP
+	
+
+
+
+CRCTEST:
+	LDA 	#$ff
+	STA 	CRCLO
+	STA 	CRCHI
+	
+	LDA 	#$65	
+	JSR 	CRC16
+	LDA 	#$03
+	JSR 	CRC16
+	LDA 	#$18
+	JSR 	CRC16
+	LDA 	#$11
+	JSR 	CRC16
+	LDA 	#$14
+	JSR 	CRC16
+
+	LDA	CRCLO
+	CMP	#$6E
+	BNE	CRCERR
+	LDA	CRCHI
+	CMP	#$38
+	BNE	CRCERR
+	RTS
+CRCERR:	BRK	
+
+CRC16:
+        EOR CRCHI       ; A contained the data
+        STA CRCHI       ; XOR it into high byte
+        LSR             ; right shift A 4 bits
+        LSR             ; to make top of x^12 term
+        LSR             ; ($1...)
+        LSR
+        TAX             ; save it
+        ASL             ; then make top of x^5 term
+        EOR CRCLO       ; and XOR that with low byte
+        STA CRCLO       ; and save
+        TXA             ; restore partial term
+        EOR CRCHI       ; and update high byte
+        STA CRCHI       ; and save
+        ASL             ; left shift three
+        ASL             ; the rest of the terms
+        ASL             ; have feedback from x^12
+        TAX             ; save bottom of x^12
+        ASL             ; left shift two more
+        ASL             ; watch the carry flag
+        EOR CRCHI       ; bottom of x^5 ($..2.)
+        TAY             ; save high byte
+        TXA             ; fetch temp value
+        ROL             ; bottom of x^12, middle of x^5!
+        EOR CRCLO       ; finally update low byte
+        STA CRCHI       ; then swap high and low bytes
+        STY CRCLO
+        RTS
+         
+
+SquareRootTest:
+        LDA	#$F0
+	STA	Numberh
+	LDA 	#$0D
+        STA	Numberl
+	JSR 	SquareRoot
+
+	LDA	Root
+	CMP	#$f7
+	BNE	SqErr
+	LDA	Reml
+	CMP	#$BC
+	BNE	SqErr
+	LDA	Remh
+	CMP	#$01
+	BNE	SqErr
+	RTS
+
+SqErr:	BRK
+		
+SquareRoot:
+	LDA	#$00		; clear A
+	STA	Reml		; clear remainder low byte
+	STA	Remh		; clear remainder high byte
+	STA	Root		; clear Root
+	LDX	#$08		; 8 pairs of bits to do
+SqLoop:
+	ASL	Root		; Root = Root * 2
+
+	ASL	Numberl		; shift highest bit of number ..
+	ROL	Numberh		;
+	ROL	Reml		; .. into remainder
+	ROL	Remh		;
+
+	ASL	Numberl		; shift highest bit of number ..
+	ROL	Numberh		;
+	ROL	Reml		; .. into remainder
+	ROL	Remh		;
+
+	LDA	Root		; copy Root ..
+	STA	templ		; .. to templ
+	LDA	#$00		; clear byte
+	STA	temph		; clear temp high byte
+
+	SEC			; +1
+	ROL	templ		; temp = temp * 2 + 1
+	ROL	temph		;
+
+	LDA	Remh		; get remainder high byte
+	CMP	temph		; comapre with partial high byte
+	BCC	SqNext		; skip sub if remainder high byte smaller
+
+	BNE	SqSubtr		; do sub if <> (must be remainder>partial !)
+
+	LDA	Reml		; get remainder low byte
+	CMP	templ		; comapre with partial low byte
+	BCC	SqNext		; skip sub if remainder low byte smaller
+
+				; else remainder>=partial so subtract then
+				; and add 1 to root. carry is always set here
+SqSubtr:
+	LDA	Reml		; get remainder low byte
+	SBC	templ		; subtract partial low byte
+	STA	Reml		; save remainder low byte
+	LDA	Remh		; get remainder high byte
+	SBC	temph		; subtract partial high byte
+	STA	Remh		; save remainder high byte
+
+	INC	Root		; increment Root
+SqNext:
+	DEX			; decrement bit pair count
+	BNE	SqLoop		; loop if not all done
+
+	RTS
+	

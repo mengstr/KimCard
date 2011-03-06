@@ -1,0 +1,99 @@
+CNT0	.SET $00
+CNT1	.SET $01
+CNT2	.SET $02
+CNT3	.SET $03
+CNT4	.SET $04
+CNT5	.SET $05
+CNT6	.SET $06
+CNT7	.SET $07
+
+BIT0	.SET $10
+BIT1	.SET $11
+BIT2	.SET $12
+BIT3	.SET $13
+BIT4	.SET $14
+BIT5	.SET $15
+BIT6	.SET $16
+BIT7	.SET $17
+
+	.ORG $0200
+	
+	LDA	#$01
+	STA	BIT0
+	LDA	#$02
+	STA	BIT1
+	LDA	#$04
+	STA	BIT2
+	LDA	#$08
+	STA	BIT3
+	LDA	#$10
+	STA	BIT4
+	LDA	#$20
+	STA	BIT5
+	LDA	#$40
+	STA	BIT6
+	LDA	#$80
+	STA	BIT7
+
+	LDA 	#$00
+	STA 	CNT0
+	STA 	CNT1
+	STA 	CNT2
+	STA 	CNT3
+	STA 	CNT4
+	STA 	CNT5
+	STA 	CNT6
+	STA 	CNT7
+
+	LDX #$00	; X is loop counter
+loop:	TXA		
+	CLC	
+	ADC #$01
+	PHP
+	PLA
+	
+	BIT	BIT0
+	BEQ	*+2
+	inc	CNT0
+skip0:
+	BIT	BIT1
+	BEQ	skip1
+	inc	CNT1
+skip1:
+
+	BIT	BIT2
+	BEQ	skip2
+	inc	CNT2
+skip2:
+	
+	BIT	BIT3
+	BEQ	skip3
+	inc	CNT3
+skip3:
+
+	BIT	BIT4
+	BEQ	skip4
+	INC	CNT4
+skip4:
+
+	BIT	BIT5
+	BEQ	skip5
+	inc	CNT5
+skip5:
+
+	BIT	BIT6
+	BEQ	skip6
+	inc	CNT6
+skip6:
+
+	BIT	BIT7
+	BEQ	skip7
+	inc	CNT7
+skip7:
+	INX
+	BNE	loop
+	
+	NOP
+	
+	
+	
