@@ -1,0 +1,4 @@
+Pcs   RM	Farnell	Name		Desc
+============================================
+ 2	3.41	9575146	PCM12SMTR	Slide switch
+23	0.98	9962875	EVQQ2Y03W 	Tactile button

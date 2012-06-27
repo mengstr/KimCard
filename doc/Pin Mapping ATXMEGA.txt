@@ -1,0 +1,86 @@
+Table 31-1. Port A - Alternate functions
+
+
+PORT A PIN # 	INTERRUPT	ADCA+	ADCA-	ADCA-	ACA+	ACA-	ACAout	RefA
+							Gain+			Gain-
+--------------------------------------------------------------------------------
+GND  	38
+AVCC 	39
+PA0  	40 		SYNC 		ADC0 	ADC0 			AC0 	AC0 			AREF
+PA1  	41 		SYNC 		ADC1 	ADC1 			AC1 	AC1
+PA2  	42 		SYNC/ASYNC 	ADC2 	ADC2 			AC2
+PA3  	43 		SYNC 		ADC3 	ADC3 			AC3 	AC3
+PA4  	44 		SYNC 		ADC4 			ADC4 	AC4
+PA5   	 1 		SYNC 		ADC5 			ADC5 	AC5 	AC5
+PA6   	 2 		SYNC 		ADC6 			ADC6 	ADC6 			AC1OUT
+PA7   	 3 		SYNC 		ADC7 			ADC7 			AC7 	AC0OUT
+
+
+Table 31-2. Port B - Alternate functions
+PORT B PIN # 	INTERRUPT 	ADCA+	DACB	REFB
+							Gain+
+-------------------------------------------------
+PB0 	 4 		SYNC 		ADC8 			AREF
+PB1 	 5 		SYNC 		ADC9
+PB2 	 6 		SYNC/ASYNC 	ADC10 	DAC0
+PB3 	 7 		SYNC 		ADC11 	DAC1
+
+
+Table 31-3. Port C - Alternate functions
+PORT C PIN # 	INTERRUPT 	TCC0	AWEXC	TCC1	USARTC0	USARTC1	SPIC	TWIC	CLOCKOUT	EVENTOUT
+--------------------------------------------------------------------------------------------------------
+GND 	 8
+VCC 	 9
+PC0 	10 		SYNC 		OC0A 	OC0ALS 									SDA
+PC1 	11 		SYNC 		OC0B 	OC0AHS 			XCK0 					SCL
+PC2 	12 		SYNC/ASYNC 	OC0C 	OC0BLS 			RXD0
+PC3 	13 		SYNC 		OC0D 	OC0BHS 			TXD0
+PC4 	14 		SYNC 				OC0CLS OC1A 					-SS
+PC5 	15 		SYNC 				OC0CHS OC1B 			XCK1 	MOSI
+PC6 	16 		SYNC 				OC0DLS 					RXD1 	MISO 			clkRTC
+PC7 	17 		SYNC 				OC0DHS 					TXD1 	SCK 			clkPER 		EVOUT
+
+(Note: Pin mapping of all TC0 can optionally be moved to high nibble of port.)
+(Note: Pin mapping of all USART0 can optionally be moved to high nibble of port.)
+(Note: Pins MOSI and SCK for all SPI can optionally be swapped.)
+(Note: CLKOUT can optionally be moved between port C, D and E and between pin 4 and 7.)
+(Note: EVOUT can optionally be moved between port C, D and E and between pin 4 and 7.)
+
+
+
+Table 31-4. Port D - Alternate functions
+PORT D PIN # 	INTERRUPT 	TCD0 	TCD1 	USBD 	USARTD0 	USARTD1 	SPID 	CLOCKOUT 	EVENTOUT
+--------------------------------------------------------------------------------------------------------
+GND 	18
+VCC 	19	
+PD0 	20 		SYNC 		OC0A
+PD1 	21 		SYNC 		OC0B 					XCK0
+PD2 	22 		SYNC/ASYNC 	OC0C 					RXD0
+PD3 	23 		SYNC 		OC0D 					TXD0
+PD4 	24 		SYNC 				OC1A 									SS
+PD5 	25 		SYNC 				OC1B 						XCK1 		MOSI
+PD6 	26 		SYNC 						D-					RXD1 		MISO
+PD7 	27 		SYNC 						D+					TXD1 		SCK 	clkPER 		EVOUT
+
+
+Table 31-5. Port E - Alternate functions
+PORT E PIN # 	INTERRUPT 	TCE0 	USARTE0 	TWIE
+----------------------------------------------------
+PE0 	28 		SYNC 		OC0A 				SDA
+PE1 	29 		SYNC 		OC0B 	XCK0 		SCL
+GND 	30
+VCC 	31
+PE2 	32 		SYNC/ASYNC 	OC0C 	RXD0
+PE3 	33 		SYNC 		OC0D 	TXD0
+
+
+Table 31-6. Port R- Alternate functions
+PORT R PIN # 	INTERRUPT 	PDI 		XTAL 	TOSC
+------------------------------------------------------
+PDI 	34 					PDI_DATA
+RESET 	35 					PDI_CLOCK
+PRO 	36 		SYNC 					XTAL2 	TOSC2
+PR1 	37 		SYNC 					XTAL1 	TOSC1
+
+(Note: 1. TOSC pins can optionally be moved to PE2/PE3)
+
