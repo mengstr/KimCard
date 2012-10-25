@@ -1,0 +1,23 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Atmel Studio Solution File, Format Version 11.00
+Project("{54F91283-7BC4-4236-8FF9-10F437C3AD48}") = "KimCard", "KimCard\KimCard.cproj", "{75403934-3F01-4CF3-898D-CE86DFCDD9E8}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|AVR = Debug|AVR
+		Release|AVR = Release|AVR
+		Simulator|AVR = Simulator|AVR
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{75403934-3F01-4CF3-898D-CE86DFCDD9E8}.Debug|AVR.ActiveCfg = Debug|AVR
+		{75403934-3F01-4CF3-898D-CE86DFCDD9E8}.Debug|AVR.Build.0 = Debug|AVR
+		{75403934-3F01-4CF3-898D-CE86DFCDD9E8}.Release|AVR.ActiveCfg = Release|AVR
+		{75403934-3F01-4CF3-898D-CE86DFCDD9E8}.Release|AVR.Build.0 = Release|AVR
+		{75403934-3F01-4CF3-898D-CE86DFCDD9E8}.Simulator|AVR.ActiveCfg = Simulator|AVR
+		{75403934-3F01-4CF3-898D-CE86DFCDD9E8}.Simulator|AVR.Build.0 = Simulator|AVR
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
