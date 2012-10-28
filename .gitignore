@@ -4,7 +4,15 @@
 *.bin
 *.lst
 *.obx
+*.eep
+*.elf
+*.lss
+*.map
+*.o
+*.d
 */Debug/*
 */Release/*
 */Simulate/*
-
+*.*#*
+Thumbs.db
+*Copy
