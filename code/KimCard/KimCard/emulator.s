@@ -289,7 +289,7 @@ ResetKim:
 Loop:
 	inc		tick				; TODO remove fake "timer"
 
-#define	DEBUG_BREAK		0x1dc8
+#define	DEBUG_BREAK		0x0200
 
 #ifdef DEBUG
 	;
@@ -924,8 +924,8 @@ OP_SBC_IY:				; *** $F1 - SBC (INDIRECT),Y
 
 OP_CMP_IM:				; *** $C9 -	CMP IMMEDIATE
 	HandleIMMEDIATE
-	cp		CPU_ACC, ZL
-	UpdateNCZjmpLoop
+	cp		CPU_ACC,ZL
+	UpdateNZInvCjmpLoop
 	
 
 
@@ -934,7 +934,7 @@ OP_CMP_ZP:				; *** $C5 - CMP ZEROPAGE
 	HandleZEROPAGE
 	ld		r16, Z
 	cp		CPU_ACC, r16
-	UpdateNCZjmpLoop
+	UpdateNZInvCjmpLoop
 
 
 
@@ -942,7 +942,7 @@ OP_CMP_ZPX:				; *** $D5 - CMP ZEROPAGE,X
 	HandleZEROPAGE_X
 	ld		r16, Z
 	cp		CPU_ACC, r16
-	UpdateNCZjmpLoop	
+	UpdateNZInvCjmpLoop
 
 
 
@@ -950,7 +950,7 @@ OP_CMP_AB:				; *** $CD - CMP ABSOLUTE
 	HandleABSOLUTE
 	ld		r16, Z
 	cp		CPU_ACC, r16
-	UpdateNCZjmpLoop	
+	UpdateNZInvCjmpLoop
 
 
 
@@ -958,7 +958,7 @@ OP_CMP_ABX:				; *** $DD - CMP ABSOLUTE,X
 	HandleABSOLUTE_X
 	ld		r16, Z
 	cp		CPU_ACC, r16
-	UpdateNCZjmpLoop	
+	UpdateNZInvCjmpLoop
 
 
 
@@ -966,7 +966,7 @@ OP_CMP_ABY:				; *** $D9 - CMP ABSOLUTE,Y
 	HandleABSOLUTE_Y
 	ld		r16, Z
 	cp		CPU_ACC, r16
-	UpdateNCZjmpLoop	
+	UpdateNZInvCjmpLoop
 
 
 
@@ -974,16 +974,15 @@ OP_CMP_IX:				; *** $C1 - CMP (INDIRECT,X)
 	HandleINDIRECT_X
 	ld		r16, Z
 	cp		CPU_ACC, r16
-	UpdateNCZjmpLoop	
+	UpdateNZInvCjmpLoop
 
 
 
 OP_CMP_IY:				; *** $D1 - CMP (INDIRECT),Y
 	HandleINDIRECT_Y
 	ld		r16, Z
-;	cp		CPU_ACC, r16
-	cp		r16, CPU_ACC
-	UpdateNCZjmpLoop	
+	cp		CPU_ACC, r16
+	UpdateNZInvCjmpLoop
 	
 
 
@@ -2250,7 +2249,7 @@ OP_LDY_IM:				; *** $A0 - LDY IMMEDIATE
 	ClearNZ
 	HandleIMMEDIATE
 	mov		CPU_Y, ZL
-	tst		CPU_X
+	tst		CPU_Y
 	UpdateNZjmpLoop
 	
 
@@ -2263,7 +2262,7 @@ OP_LDY_ZP:				; *** $A4 - LDY ZEROPAGE
 	ClearNZ
 	HandleZEROPAGE
 	ld		CPU_Y, Z
-	tst		CPU_X
+	tst		CPU_Y
 	UpdateNZjmpLoop
 	
 
@@ -2271,26 +2270,39 @@ OP_LDY_ZP:				; *** $A4 - LDY ZEROPAGE
 
 
 OP_LDY_ZPX:				; *** $B4 - LDY ZEROPAGE,X
+#ifdef DEBUG	
+	nop
+#endif
+	ClearNZ
 	HandleZEROPAGE_X
 	ld		CPU_Y, Z
-	jmp Loop
+	tst		CPU_Y
+	UpdateNZjmpLoop
 	
 	
 
 
 OP_LDY_AB:				; *** $AC - LDY ABSOLUTE
+#ifdef DEBUG	
+	nop
+#endif
 	ClearNZ
 	HandleABSOLUTE
 	ld		CPU_Y, Z
+	tst		CPU_Y
 	UpdateNZjmpLoop
 
 	
 
 	
 OP_LDY_ABX:				; *** $BC - LDY ABSOLUTE,Y	
+#ifdef DEBUG	
+	nop
+#endif
+	ClearNZ
 	HandleABSOLUTE_X
 	ld		CPU_Y, Z
-	jmp Loop
+	UpdateNZjmpLoop
 	
 
 

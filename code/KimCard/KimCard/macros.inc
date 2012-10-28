@@ -212,6 +212,32 @@
 
 
 
+; Bit          7   6   5   4   3   2   1   0
+;+0x0F         I   T   H   S   V   N   Z   C    SREG
+;
+; Update NZC but with inverted C for CMP instructions
+;
+.MACRO 	UpdateNZInvCjmpLoop
+	in		r13, 0x3F			; SREG
+
+	cbr		CPU_STATUS, MASK_FLAG_NEGATIVE
+	sbr		CPU_STATUS, MASK_FLAG_CARRY
+	cbr		CPU_STATUS, MASK_FLAG_ZERO
+
+	sbrc	r13, 0				; Carry
+	cbr		CPU_STATUS, MASK_FLAG_CARRY 
+
+	sbrc	r13, 1				; Zero
+	sbr		CPU_STATUS, MASK_FLAG_ZERO
+
+	sbrc	r13, 2				; Negative
+	sbr		CPU_STATUS, MASK_FLAG_NEGATIVE
+
+	jmp Loop
+.ENDM
+
+
+
 .MACRO 	UpdateNCZVjmpLoop
 	in		r13, 0x3F			; SREG
 
