@@ -3,7 +3,7 @@
 
 .global Emulate
 .global PORTB_INT0_vect
-
+.global Loop
 
 ;
 ; ATXMEGA32		USED FOR 
@@ -115,120 +115,13 @@
 #define BIT_BUTTON_SST	1
 #define MASK_BUTTON_SST	(1<<BIT_BUTTON_SST)
 
-	.equ	BIT_FLAG_CARRY		, 0
-	.equ	BIT_FLAG_ZERO		, 1
-	.equ	BIT_FLAG_INTERRUPT	, 2
-	.equ	BIT_FLAG_DECIMAL	, 3
-	.equ	BIT_FLAG_BREAK		, 4
-	.equ	BIT_FLAG_UNUSED		, 5
-	.equ	BIT_FLAG_OVERFLOW	, 6
-	.equ	BIT_FLAG_NEGATIVE	, 7
-
-	.equ	MASK_FLAG_CARRY		, (1<<BIT_FLAG_CARRY)
-	.equ	MASK_FLAG_ZERO		, (1<<BIT_FLAG_ZERO)
-	.equ	MASK_FLAG_INTERRUPT	, (1<<BIT_FLAG_INTERRUPT)
-	.equ	MASK_FLAG_DECIMAL	, (1<<BIT_FLAG_DECIMAL)
-	.equ	MASK_FLAG_BREAK		, (1<<BIT_FLAG_BREAK)
-	.equ	MASK_FLAG_UNUSED	, (1<<BIT_FLAG_UNUSED)
-	.equ	MASK_FLAG_OVERFLOW	, (1<<BIT_FLAG_OVERFLOW)
-	.equ	MASK_FLAG_NEGATIVE	, (1<<BIT_FLAG_NEGATIVE)
-
-
-	.equ	PA_DIR,	0x10
-	.equ	PA_OUT,	0x11
-	.equ	PA_IN,	0x12
-
-	.equ	PB_DIR,	0x14
-	.equ	PB_OUT,	0x15
-	.equ	PB_IN,	0x16
-
-	.equ	PC_DIR,	0x18
-	.equ	PC_OUT,	0x19
-	.equ	PC_IN,	0x1A
-
-	.equ	PD_DIR,	0x1C
-	.equ	PD_OUT,	0x1D
-	.equ	PD_IN,	0x1E
-
-
-
-#define	tick			r25
-
-
-#define		XX			r26
-#define		YY			r28
-#define		ZZ			r30
-
-#define CPU_ACC			r19
-#define CPU_X			r20
-#define CPU_Y			r21
-#define CPU_STATUS		r22
-
-#define CPU_PC			Y
-#define	CPU_PCH			YH
-#define CPU_PCL			YL
-
-
-#define SAVE			r0				// Used for saving orginal address when mapping kim<->avr memory spaces
-#define	ZERO			r1				// Always set to 0x00 by gcc
-#define CPU_SP			r2				// 6502 stack pointer
-#define FLAGS			r3				// Bit 0 set by Button ISR
-//#define xxx			r4
-//#define xxx			r5
-//#define xxx			r6
-//#define xxx			r7
-//#define xxx			r8
-//#define xxx			r9
-//#define xxx			r10
-//#define xxx			r11
-//#define xxx			r12
-//#define xxx			r13
-//#define xxx			r14
-//#define xxx			r15
-#define TEMP			r16
-//#define xxx			r17
-//#define xxx			r18
-//#define xxx			r19
-//#define xxx			r20
-//#define xxx			r21
-//#define xxx			r22
-//#define xxx			r23
-//#define xxx			r24
-//#define xxx			r25
-//#define xxx			r26			// XL
-//#define xxx			r27			// XH
-//#define xxx			r28			// YL
-//#define xxx			r29			// YH
-//#define xxx			r30			// ZL
-//#define xxx			r31			// ZH
-
-
 
 ;
 ; Y is used for CPU_PC
 ; Z is normally used for computed gotos and lookup tables
 ;
 
-#define KIMRAM			0x2000
-#define KIMROM			0x2C00
-
-#define	KIM_INITPOINTL	0x0200
-
-#define KIM_RESET		0x1C22
-#define KIM_NMI			0x1C00
-
-#define KIM_POINTL		(KIMRAM+0xfa)
-#define KIM_POINTH		(KIMRAM+0xfb)
-#define KIM_RIOTPAGE	hi8(0x1700+KIMRAM)
-#define KIM_SAD			0x1740
-#define KIM_PADD		0x1741
-#define KIM_SBD			0x1742
-#define KIM_PBDD		0x1743
-
-
-
 #include "macros.inc"
-
 
 //
 // This interrupt is setup in main.c during PORT B initialization.
@@ -237,7 +130,7 @@
 // have changed state making the test in the main-loop faster.
 //
 PORTB_INT0_vect:
-	push	r16							; Save clobbered reisters
+	push	r16							; Save clobbered registers
 	in		r16,SREG
 	push	r16
 	
@@ -255,17 +148,17 @@ Emulate:
 	PushAllRegisters					; Save all registers that's to become clobbered
 			
    ; Copy the initial values for the BIOS from Flash into RAM. 
-	ldi 	ZL, lo8(BiosFlashData) 
-	ldi 	ZH, hi8(BiosFlashData) 
-	ldi 	XL, lo8(KIMROM) 
-	ldi 	XH, hi8(KIMROM) 
-	ldi 	YL, lo8(1024)				; The KIM-1 ROM is 1 KByte
-	ldi 	YH, hi8(1024)
-BiosCopyLoop: 
-	lpm 	r17, Z+ 
-	st		X+, r17 
-	sbiw 	YY,1 
-	brne 	BiosCopyLoop
+;	ldi 	ZL, lo8(BiosFlashData) 
+;	ldi 	ZH, hi8(BiosFlashData) 
+;	ldi 	XL, lo8(KIMROM) 
+;	ldi 	XH, hi8(KIMROM) 
+;	ldi 	YL, lo8(1024)				; The KIM-1 ROM is 1 KByte
+;	ldi 	YH, hi8(1024)
+;BiosCopyLoop: 
+;	lpm 	r17, Z+ 
+;	st		X+, r17 
+;	sbiw 	YY,1 
+;	brne 	BiosCopyLoop
 
 ResetKim:
 	ldi		CPU_PCL, lo8(KIM_RESET)	; KIM-1 Reset vector points to $1C22
@@ -400,15 +293,15 @@ StopButtonHandler:
 NMI:						; Emulate NMI: Push PCH, PCL & Status on the stack
 	ldi		ZH, 0x20+1		; Stack is 0x100-0x1FF on 6502. Offset this with 0x20 pages for SRAM
 
-	mov		ZL,	CPU_SP
+	mov		ZL,	CPU_SP		; Push 6502 PCH on stack
 	st		Z, CPU_PCH
 	dec		CPU_SP		
 
-	mov		ZL,	CPU_SP
+	mov		ZL,	CPU_SP		; Push 6502 PCL on stack
 	st		Z, CPU_PCL
 	dec		CPU_SP		
 
-	mov		ZL,	CPU_SP
+	mov		ZL,	CPU_SP		; Push 6502 Status on stack
 	st		Z, CPU_STATUS
 	dec		CPU_SP		
 
@@ -430,7 +323,7 @@ ResetButtonHandler:
 	dec		TEMP
 	brne	1f
 	PopAllRegisters
-	ret			; And go back to the main C-code
+	ret							; And go back to the main C-code
 1:
 	sbis	PB_IN, 2			; Are we still pressed?
 	jmp		0b
@@ -456,9 +349,6 @@ d10ms3:
 
 
 
-#include "opcodes.inc"
-
-
 
 ;*****************************************************************************
 ;
@@ -477,11 +367,9 @@ d10ms3:
 ; V	Overflow Flag		-
 ; N	Negative Flag		-
 ;	
-.func OP_BRK
 OP_BRK:					; *** $00 - BRK //TODO
 	ret
 	jmp OP_BRK
-.endfunc	
 	
 
 
@@ -583,497 +471,6 @@ ldi		ZH, 0x20+1			; Offset 0x20 pages for SRAM
 
 
 
-;*****************************************************************************
-;
-; ADC - Add with Carry
-;
-; A,Z,C,N = A+M+C
-;
-; This instruction adds the contents of a memory location to the accumulator 
-; together with the carry bit. If overflow occurs the carry bit is set, this 
-; enables multiple byte addition to be performed.
-;
-; NOTE: These instructions are affected by the Decimal Mode Flag
-;
-; C	Carry Flag			Set if overflow in bit 7
-; Z	Zero Flag			Set if A = 0
-; I	Interrupt Disable	-
-; D	Decimal Mode Flag	-
-; B	Break Command		-
-; V	Overflow Flag		Set if sign bit is incorrect
-; N	Negative Flag		Set if bit 7 set
-;
-
-OP_ADC_IM:				; *** $69 - ADC IMMEDIATE 
-						; TODO : Handle Decimal Mode
-	HandleIMMEDIATE
-	sbrc	CPU_STATUS, BIT_FLAG_DECIMAL
-	jmp		ADC_IM_DECIMAL
-	sbrc	CPU_STATUS, BIT_FLAG_CARRY	; Set AVR carry if 6502 carry is set
-	sec
-	adc		CPU_ACC, ZL
-	UpdateNCZVjmpLoop
-
-ADC_IM_DECIMAL:
-	// Split CPU_ACC into nybbles in r17(H) and r16(L)
-	mov		r16,CPU_ACC
-	andi	r16,0x0f
-	mov		r17,CPU_ACC
-	swap	r17
-	andi	r17,0x0f
-
-	// Split ZL into nybbles in r13(H) and r26(L)
-	mov		r26,ZL
-	andi	r26,0x0f
-	mov		r27,ZL
-	swap	r27
-	andi	r27,0x0f
-
-	// Add low nybbles and carry into r10
-	clc
-	sbrc	CPU_STATUS, BIT_FLAG_CARRY	; Set AVR carry if 6502 carry is set
-	sec
-	adc		r16,r26
-
-	// Test if result > 9
-	cpi		r16,10
-	brmi	ADC_IM_DECIMAL_NoCarryOnLowNybble
-	// If result>9 then subtract 10
-	subi	r16,10
-	// Add high nybbles plus 1 for carry
-	sec
-	adc		r17,r27
-	// Test if result > 9
-	cpi		r17,10
-	brmi	ADC_IM_DECIMAL_NoCarryOnHighNybble
-	// If result>9 then subtract 10
-	subi	r17,10
-ADC_IM_DECIMAL_NoCarryOnHighNybble:
-	// Combine hi and lo nybbles into CPU_ACC again
-	swap	r17
-	or		r17,r16
-	mov		CPU_ACC, r17
-	tst		CPU_ACC
-	UpdateNCZVjmpLoop
-
-
-ADC_IM_DECIMAL_NoCarryOnLowNybble:
-	// Add high nybbles
-	clc
-	adc		r17,r13
-	// Test if result > 9
-	cpi		r17,10
-	brmi	ADC_IM_DECIMAL_NoCarryOnHighNybble2
-	// If result>9 then subtract 10
-	subi	r17,10
-ADC_IM_DECIMAL_NoCarryOnHighNybble2:
-	// Combine hi and lo nybbles into CPU_ACC again
-	swap	r17
-	or		r17,r16
-	mov		CPU_ACC, r17
-	tst		CPU_ACC
-	UpdateNCZVjmpLoop
-
-;
-;LUNAR LANDER DECIMAL MODES
-;--------------------------
-;$75 ADC ZP,X
-;$E9 SBC #
-;$69 ADC #
-;$E5 SBC ZP
-;
-;
-;
-
-
-;
-;T1=NL1+NL2+C
-;IF T1>9 THEN 
-;	T1=T1-10
-;	T2=NH1+NH2+1
-;	IF T2>9 THEN T2=T2-10
-;	R=T2*16+T1
-;ELSE
-;	T2=NH1+NH2
-;	IF T2>9 THEN T2=T2-10
-;	R=T2*16+T1
-;
-
-
-
-
-OP_ADC_ZP:				; *** $65 - ADC ZEROPAGE
-						; TODO : Handle Decimal Mode
-	HandleZEROPAGE
-	sbrc	CPU_STATUS, BIT_FLAG_DECIMAL
-	jmp		ADC_ZP_DECIMAL
-
-	ld		r16, Z
-	sbrc	CPU_STATUS, BIT_FLAG_CARRY	; Set AVR carry if 6502 carry is set
-	sec
-	adc		CPU_ACC, r16
-	UpdateNCZVjmpLoop
-
-ADC_ZP_DECIMAL:  // TODO
-	
-
-OP_ADC_ZPX:				; *** $75 - ADC ZEROPAGE,X
-						; TODO : Handle Decimal Mode
-	HandleZEROPAGE_X
-	sbrc	CPU_STATUS, BIT_FLAG_DECIMAL
-	jmp		ADC_ZP_X_DECIMAL
-	ld		r16, Z
-	sbrc	CPU_STATUS, BIT_FLAG_CARRY	; Set AVR carry if 6502 carry is set
-	sec
-	adc		CPU_ACC, r16
-	UpdateNCZVjmpLoop
-
-ADC_ZP_X_DECIMAL: //TODO	
-
-OP_ADC_AB:				; *** $6D - ABSOLUTE
-						; TODO : Handle Decimal Mode
-	HandleABSOLUTE
-	sbrc	CPU_STATUS, BIT_FLAG_DECIMAL
-	jmp		ADC_AB_DECIMAL
-	ld		r16, Z
-	sbrc	CPU_STATUS, BIT_FLAG_CARRY	; Set AVR carry if 6502 carry is set
-	sec
-	adc		CPU_ACC, r16
-	UpdateNCZVjmpLoop
-
-ADC_AB_DECIMAL: 	// TODO
-
-OP_ADC_ABX:				; *** $7D - ADC ABSOLUTE,X
-						; TODO : Handle Decimal Mode
-	HandleABSOLUTE_X
-	sbrc	CPU_STATUS, BIT_FLAG_DECIMAL
-	jmp		ADC_ABX_DECIMAL
-	ld		r16, Z
-	sbrc	CPU_STATUS, BIT_FLAG_CARRY	; Set AVR carry if 6502 carry is set
-	sec
-	adc		CPU_ACC, r16
-	UpdateNCZVjmpLoop
-	
-ADC_ABX_DECIMAL:  //TODO
-
-
-
-OP_ADC_ABY:				; *** $79 - ADC ABSOLUTE,Y
-						; TODO : Handle Decimal Mode
-	HandleABSOLUTE_Y
-	sbrc	CPU_STATUS, BIT_FLAG_DECIMAL
-	jmp		ADC_ABY_DECIMAL
-	ld		r16, Z
-	sbrc	CPU_STATUS, BIT_FLAG_CARRY	; Set AVR carry if 6502 carry is set
-	sec
-	adc		CPU_ACC, r16
-	UpdateNCZVjmpLoop
-
-ADC_ABY_DECIMAL:	// TODO
-
-
-OP_ADC_IX:				; *** $61 - ADC (INDIRECT,X)
-						; TODO : Handle Decimal Mode
-	HandleINDIRECT_X
-	sbrc	CPU_STATUS, BIT_FLAG_DECIMAL
-	jmp		ADC_IX_DECIMAL
-	ld		r16, Z
-	sbrc	CPU_STATUS, BIT_FLAG_CARRY	; Set AVR carry if 6502 carry is set
-	sec
-	adc		CPU_ACC, r16
-	UpdateNCZVjmpLoop
-
-ADC_IX_DECIMAL: //TODO	
-
-OP_ADC_IY:				; *** $71 - ADC (INDIRECT),Y
-						; TODO : Handle Decimal Mode
-	HandleINDIRECT_Y
-	sbrc	CPU_STATUS, BIT_FLAG_DECIMAL
-	jmp		ADC_IY_DECIMAL
-	ld		r16, Z
-	sbrc	CPU_STATUS, BIT_FLAG_CARRY	; Set AVR carry if 6502 carry is set
-	sec
-	adc		CPU_ACC, r16
-	UpdateNCZVjmpLoop
-	
-ADC_IY_DECIMAL: //TODO
-
-
-
-
-;*****************************************************************************
-;
-; SBC - Subtract with Carry
-;
-; A,Z,C,N = A-M-(1-C)
-;
-; This instruction subtracts the contents of a memory location to the 
-; accumulator together with the not of the carry bit. If overflow occurs the 
-; carry bit is clear, this enables multiple byte subtraction to be performed.
-;
-; NOTE: These instructions are affected by the Decimal Mode Flag
-;
-; C	Carry Flag			Clear if overflow in bit 7
-; Z	Zero Flag			Set if A = 0
-; I	Interrupt Disable	-
-; D	Decimal Mode Flag	-
-; B	Break Command		-
-; V	Overflow Flag		Set if sign bit is incorrect
-; N	Negative Flag		Set if bit 7 set
-;
-
-OP_SBC_IM:				; *** $E9 - SBC IMMEDIATE
-						; TODO : Handle Decimal Mode
-	HandleIMMEDIATE
-	sbrc	CPU_STATUS, BIT_FLAG_CARRY	; Set AVR carry if 6502 carry is set
-	sec
-	sbc		CPU_ACC, ZL
-	UpdateNCZVjmpLoop
-
-
-OP_SBC_ZP:				; *** $E5 - SBC ZEROPAGE
-						; TODO : Handle Decimal Mode
-	HandleZEROPAGE
-	ld		r16, Z
-	sbrc	CPU_STATUS, BIT_FLAG_CARRY	; Set AVR carry if 6502 carry is set
-	sec
-	sbc		CPU_ACC, r16
-	UpdateNCZVjmpLoop
-	
-
-OP_SBC_ZPX:				; *** $F5 - SBC ZEROPAGE,X
-						; TODO : Handle Decimal Mode
-	HandleZEROPAGE_X
-	ld		r16, Z
-	sbrc	CPU_STATUS, BIT_FLAG_CARRY	; Set AVR carry if 6502 carry is set
-	sec
-	sbc		CPU_ACC, r16
-	UpdateNCZVjmpLoop
-
-
-OP_SBC_AB:				; *** $ED - SBC ABSOLUTE
-						; TODO : Handle Decimal Mode
-	HandleABSOLUTE
-	ld		r16, Z
-	sbrc	CPU_STATUS, BIT_FLAG_CARRY	; Set AVR carry if 6502 carry is set
-	sec
-	sbc		CPU_ACC, r16
-	UpdateNCZVjmpLoop
-	
-
-OP_SBC_ABX:				; *** $FD - SBC ABSOLUTE,X
-						; TODO : Handle Decimal Mode
-	HandleABSOLUTE_X
-	ld		r16, Z
-	sbrc	CPU_STATUS, BIT_FLAG_CARRY	; Set AVR carry if 6502 carry is set
-	sec
-	sbc		CPU_ACC, r16
-	UpdateNCZVjmpLoop
-	
-
-OP_SBC_ABY:				; *** $F9 - SBC ABSOLUTE,Y	 
-						; TODO : Handle Decimal Mode
-	HandleABSOLUTE_Y
-	ld		r16, Z
-	sbrc	CPU_STATUS, BIT_FLAG_CARRY	; Set AVR carry if 6502 carry is set
-	sec
-	sbc		CPU_ACC, r16
-	UpdateNCZVjmpLoop
-	
-
-OP_SBC_IX:				; *** $E1 - SBC (INDIRECT,X)
-						; TODO : Handle Decimal Mode
-	HandleINDIRECT_X
-	ld		r16, Z
-	sbrc	CPU_STATUS, BIT_FLAG_CARRY	; Set AVR carry if 6502 carry is set
-	sec
-	sbc		CPU_ACC, r16
-	UpdateNCZVjmpLoop
-	
-
-OP_SBC_IY:				; *** $F1 - SBC (INDIRECT),Y
-						; TODO : Handle Decimal Mode
-	HandleINDIRECT_Y
-	ld		r16, Z
-	sbrc	CPU_STATUS, BIT_FLAG_CARRY	; Set AVR carry if 6502 carry is set
-	sec
-	sbc		CPU_ACC, r16
-	UpdateNCZVjmpLoop
-	
-
-
-
-
-;*****************************************************************************
-;
-; CMP - Compare
-;
-; Z,C,N = A-M
-;
-; This instruction compares the contents of the accumulator with another 
-; memory held value and sets the zero and carry flags as appropriate.
-;
-; C	Carry Flag			Set if A >= M
-; Z	Zero Flag			Set if A = M
-; I	Interrupt Disable	-
-; D	Decimal Mode Flag	-
-; B	Break Command		-
-; V	Overflow Flag		-
-; N	Negative Flag		Set if bit 7 of the result is set
-;
-
-OP_CMP_IM:				; *** $C9 -	CMP IMMEDIATE
-	HandleIMMEDIATE
-	cp		CPU_ACC,ZL
-	UpdateNZInvCjmpLoop
-	
-
-
-
-OP_CMP_ZP:				; *** $C5 - CMP ZEROPAGE
-	HandleZEROPAGE
-	ld		r16, Z
-	cp		CPU_ACC, r16
-	UpdateNZInvCjmpLoop
-
-
-
-OP_CMP_ZPX:				; *** $D5 - CMP ZEROPAGE,X
-	HandleZEROPAGE_X
-	ld		r16, Z
-	cp		CPU_ACC, r16
-	UpdateNZInvCjmpLoop
-
-
-
-OP_CMP_AB:				; *** $CD - CMP ABSOLUTE
-	HandleABSOLUTE
-	ld		r16, Z
-	cp		CPU_ACC, r16
-	UpdateNZInvCjmpLoop
-
-
-
-OP_CMP_ABX:				; *** $DD - CMP ABSOLUTE,X
-	HandleABSOLUTE_X
-	ld		r16, Z
-	cp		CPU_ACC, r16
-	UpdateNZInvCjmpLoop
-
-
-
-OP_CMP_ABY:				; *** $D9 - CMP ABSOLUTE,Y
-	HandleABSOLUTE_Y
-	ld		r16, Z
-	cp		CPU_ACC, r16
-	UpdateNZInvCjmpLoop
-
-
-
-OP_CMP_IX:				; *** $C1 - CMP (INDIRECT,X)
-	HandleINDIRECT_X
-	ld		r16, Z
-	cp		CPU_ACC, r16
-	UpdateNZInvCjmpLoop
-
-
-
-OP_CMP_IY:				; *** $D1 - CMP (INDIRECT),Y
-	HandleINDIRECT_Y
-	ld		r16, Z
-	cp		CPU_ACC, r16
-	UpdateNZInvCjmpLoop
-	
-
-
-
-
-
-
-
-;*****************************************************************************
-;
-; CPX - Compare X Register
-;
-; Z,C,N = X-M
-;
-; This instruction compares the contents of the X register with another 
-; memory held value and sets the zero and carry flags as appropriate.
-;
-; C	Carry Flag			Set if X >= M
-; Z	Zero Flag			Set if X = M
-; I	Interrupt Disable	-
-; D	Decimal Mode Flag	-
-; B	Break Command		-
-; V	Overflow Flag		-
-; N	Negative Flag		Set if bit 7 of the result is set
-;
-
-OP_CPX_IM:				; *** $E0 - CPX IMMEDIATE
-	HandleIMMEDIATE
-	cp		CPU_X, ZL
-	UpdateNCZjmpLoop
-
-
-
-OP_CPX_ZP:				; *** $E4 - CPX ZEROPAGE
-	HandleZEROPAGE
-	ld		r16, Z
-	cp		CPU_X, r16
-	UpdateNCZjmpLoop
-
-
-
-OP_CPX_AB:				; *** $EC -	CPX ABSOLUTE
-	HandleABSOLUTE
-	ld		r16, Z
-	cp		CPU_X, r16
-	UpdateNCZjmpLoop	
-	
-
-
-;*****************************************************************************
-;
-; CPY - Compare Y Register
-;
-; Z,C,N = Y-M
-;
-; This instruction compares the contents of the Y register with another 
-; memory held value and sets the zero and carry flags as appropriate.
-;
-; C	Carry Flag			Set if Y >= M
-; Z	Zero Flag			Set if Y = M
-; I	Interrupt Disable	-
-; D	Decimal Mode Flag	-
-; B	Break Command		-
-; V	Overflow Flag		-
-; N	Negative Flag		Set if bit 7 of the result is set
-;
-
-OP_CPY_IM:				; *** $C0 - CPY IMMEDIATE
-	HandleIMMEDIATE
-	ld		r16, Z
-	cp		CPU_Y, ZL
-	UpdateNCZjmpLoop
-
-
-
-OP_CPY_ZP:				; *** $C4 -	CPY ZEROAPAGE
-	HandleZEROPAGE
-	ld		r16, Z
-	cp		CPU_Y, r16
-	UpdateNCZjmpLoop
-
-
-
-OP_CPY_AB:				; *** $CC - CPY ABSOLUTE
-	HandleABSOLUTE
-	ld		r16, Z
-	cp		CPU_Y, r16
-	UpdateNCZjmpLoop	
-	
-	
-
 
 
 ;*****************************************************************************
@@ -1100,292 +497,6 @@ OP_PLA:					; *** $68 - PLA
 	inc		ZL
 	ld		CPU_ACC, Z
 	UpdateNZjmpLoop
-
-
-
-
-
-;*****************************************************************************
-;
-; AND - Logical AND
-;
-; A,Z,N = A&M
-;
-; A logical AND is performed, bit by bit, on the accumulator contents using 
-; the contents of a byte of memory.
-;
-; C	Carry Flag	-
-; Z	Zero Flag	Set if A = 0
-; I	Interrupt Disable	-
-; D	Decimal Mode Flag	-
-; B	Break Command	-
-; V	Overflow Flag	-
-; N	Negative Flag	Set if bit 7 set
-;
-
-OP_AND_IM:				; *** $29 - AND IMMEDIATE
-	ClearNZ
-	HandleIMMEDIATE
-	ld		r16, Z
-	and		CPU_ACC, ZL
-	UpdateNZjmpLoop
-	
-
-
-OP_AND_ZP:				; *** $25 - AND ZEROPAGE
-	ClearNZ
-	HandleZEROPAGE
-	ld		r16, Z
-	and		CPU_ACC, r16
-	UpdateNZjmpLoop
-	
-
-
-OP_AND_ZPX:				; *** $35 - AND ZEROPAEGE,X 
-	ClearNZ
-	HandleZEROPAGE_X
-	ld		r16, Z
-	and		CPU_ACC, r16
-	UpdateNZjmpLoop
-	
-
-
-OP_AND_AB:				; *** $2D - AND ABSOLUTE
-	ClearNZ
-	HandleABSOLUTE
-	breq	ANDAB_Port
-	ld		r16, Z
-	and		CPU_ACC, r16
-	UpdateNZjmpLoop
-ANDAB_Port:	
-	cpi		ZL, 0x40	; Is Data Register A?
-	brne	ANDAB_Port1
-	in		r16, PA_IN
-	ldi		XH, hi8(BitReverseTable)	; TODO FIX BUG IN HARDWARE AND REMOVE THIS PATCH
-	ldi		XL, lo8(BitReverseTable)	; TODO FIX BUG IN HARDWARE AND REMOVE THIS PATCH
-	add		XL, r16						; TODO FIX BUG IN HARDWARE AND REMOVE THIS PATCH
-	ld		r16, X						; TODO FIX BUG IN HARDWARE AND REMOVE THIS PATCH
-	and		CPU_ACC, r16
-	UpdateNZjmpLoop
-	jmp 	Loop
-ANDAB_Port1:
-	jmp		Loop
-
-OP_AND_ABX:				; *** $3D - AND ABSOLUTE,X 
-	ClearNZ
-	HandleABSOLUTE_X
-	ld		r16, Z
-	and		CPU_ACC, r16
-	UpdateNZjmpLoop
-	
-
-
-OP_AND_ABY:				; *** $39 - AND ABSOLUTE,Y 
-	ClearNZ
-	HandleABSOLUTE_Y
-	ld		r16, Z
-	and		CPU_ACC, r16
-	UpdateNZjmpLoop
-	
-
-
-OP_AND_IX:				; *** $21 - AND (INDIRECT,X) 
-	ClearNZ
-	HandleINDIRECT_X
-	ld		r16, Z
-	and		CPU_ACC, r16
-	UpdateNZjmpLoop
-	
-
-
-OP_AND_IY:				; *** $31 - AND (INDIRECT),Y
-	ClearNZ
-	HandleINDIRECT_Y
-	ld		r16, Z
-	and		CPU_ACC, r16
-	UpdateNZjmpLoop
-	
-
-;*****************************************************************************
-;
-; ORA - Logical Inclusive OR
-;
-; A,Z,N = A|M
-;
-; An inclusive OR is performed, bit by bit, on the accumulator contents 
-; using the contents of a byte of memory.
-;
-; C	Carry Flag			-
-; Z	Zero Flag			Set if A = 0
-; I	Interrupt Disable	-
-; D	Decimal Mode Flag	-
-; B	Break Command		-
-; V	Overflow Flag		-
-; N	Negative Flag		Set if bit 7 set
-;
-
-OP_ORA_IM:				; *** $09 - ORA IMMEDIATE
-	ClearNZ
-	HandleIMMEDIATE
-	or		CPU_ACC, ZL
-	UpdateNZjmpLoop
-	
-
-
-OP_ORA_ZP:				; *** $05 - ORA ZEROPAGE
-	ClearNZ
-	HandleZEROPAGE	
-	ld		r16, Z
-	or		CPU_ACC, r16
-	UpdateNZjmpLoop
-	
-
-
-OP_ORA_ZPX:				; *** $15 - ORA ZEROPAGE,X 
-	ClearNZ
-	HandleZEROPAGE_X
-	ld		r16, Z
-	or		CPU_ACC, r16
-	UpdateNZjmpLoop
-
-
-
-OP_ORA_AB:				; *** $0D - ORA ABSOLUTE
-	ClearNZ
-	HandleABSOLUTE
-	ld		r16, Z
-	or		CPU_ACC, r16
-	UpdateNZjmpLoop
-	
-
-
-OP_ORA_ABX:				; *** $1D - ORA ABSOLUTE,X 
-	ClearNZ
-	HandleABSOLUTE_X
-	ld		r16, Z
-	or		CPU_ACC, r16
-	UpdateNZjmpLoop
-	
-
-
-OP_ORA_ABY:				; *** $19 - ORA ABSOLUTE,Y
-	ClearNZ
-	HandleABSOLUTE_Y
-	ld		r16, Z
-	or		CPU_ACC, r16
-	UpdateNZjmpLoop
-	
-
-
-OP_ORA_IX:				; *** $01 - ORA (INDIRECT,X)
-	ClearNZ
-	HandleINDIRECT_X
-	ld		r16, Z
-	or		CPU_ACC, r16
-	UpdateNZjmpLoop
-	
-
-
-OP_ORA_IY:				; *** $11 - ORA (INDIRECT),Y
-	ClearNZ
-	HandleINDIRECT_Y
-	ld		r16, Z
-	or		CPU_ACC, r16
-	UpdateNZjmpLoop
-	
-
-
-
-
-
-;*****************************************************************************
-;
-; EOR - Exclusive OR
-;
-; A,Z,N = A^M
-;
-; An exclusive OR is performed, bit by bit, on the accumulator contents 
-; using the contents of a byte of memory.
-;
-; C	Carry Flag			-
-; Z	Zero Flag			Set if A = 0
-; I	Interrupt Disable	-
-; D	Decimal Mode Flag	-
-; B	Break Command		-
-; V	Overflow Flag		-
-; N	Negative Flag		Set if bit 7 set
-;
-
-OP_EOR_IM:				; *** $49 - EOR IMMEDIATE
-	ClearNZ
-	HandleIMMEDIATE
-	eor		CPU_ACC, ZL
-	UpdateNZjmpLoop
-	
-
-OP_EOR_ZP:				; *** $45 - EOR ZEROPAGE
-	ClearNZ
-	HandleZEROPAGE
-	ld		r16, Z
-	eor		CPU_ACC, r16
-	UpdateNZjmpLoop
-	
-
-
-OP_EOR_ZPX:				; *** $55 - EOR ZEROPAGE,X
-	ClearNZ
-	HandleZEROPAGE_X
-	ld		r16, Z
-	eor		CPU_ACC, r16
-	UpdateNZjmpLoop
-
-
-
-OP_EOR_AB:				; *** $4D - EOR ABSOLUTE 
-	ClearNZ
-	HandleABSOLUTE
-	ld		r16, Z
-	eor		CPU_ACC, r16
-	UpdateNZjmpLoop
-	
-
-
-OP_EOR_ABX:				; *** $5D - EOR ABSOLUTE,X
-	ClearNZ
-	HandleABSOLUTE_X
-	ld		r16, Z
-	eor		CPU_ACC, r16
-	UpdateNZjmpLoop
-	
-
-
-OP_EOR_ABY:				; *** $59 - EOR ABSOLUTE,Y
-	ClearNZ
-	HandleABSOLUTE_Y
-	ld		r16, Z
-	eor		CPU_ACC, r16
-	UpdateNZjmpLoop
-	
-
-
-OP_EOR_IX:				; *** $41 - EOR (INDIRECT,X)
-	ClearNZ
-	HandleINDIRECT_X
-	ld		r16, Z
-	eor		CPU_ACC, r16
-	UpdateNZjmpLoop
-	
-
-
-OP_EOR_IY:				; *** $51 - EOR (INDIRECT),Y
-	ClearNZ
-	HandleINDIRECT_Y
-	ld		r16, Z
-	eor		CPU_ACC, r16
-	UpdateNZjmpLoop
-	
-
-
 
 ;*****************************************************************************
 ;
@@ -1871,606 +982,6 @@ OP_LSR_ABX:				; *** $5E LSR ABSOLUTE,X
 	
 
 
-;*****************************************************************************
-;
-; STA - Store Accumulator 
-;
-; M = A
-; Stores the contents of the accumulator into memory.
-;
-; C	Carry Flag			-
-; Z	Zero Flag			-
-; I	Interrupt Disable	-
-; D	Decimal Mode Flag	-
-; B	Break Command		-
-; V	Overflow Flag		-
-; N Negative Flag		-
-;
-
-OP_STA_ZP:				; *** $85 - STA ZEROPAGE
-	HandleZEROPAGE
-	st		Z, CPU_ACC
-	jmp 	Loop
-	
-
-
-OP_STA_ZPX:				; *** $95 - STA ZEROPAGE,X
-	HandleZEROPAGE_X
-	st		Z, CPU_ACC
-	jmp 	Loop
-	
-
-
-OP_STA_AB:				; *** $8D - STA ABSOLUTE
-#ifdef DEBUG
-	nop
-#endif
-	HandleABSOLUTE
-	StoreAbsolute CPU_ACC
-
-
-OP_STA_ABX:				; *** $9D - STA ABSOLUTE,X
-	HandleABSOLUTE_X
-	breq	OP_STA_ABX_PORT
-	st		Z, CPU_ACC	
-	jmp 	Loop
-OP_STA_ABX_PORT:
-	nop		; // TODO
-	
-
-
-
-OP_STA_ABY:				; *** $99 - STA ABSOLUTE,Y 
-	HandleABSOLUTE_Y
-	breq	OP_STA_ABY_PORT
-	st		Z, CPU_ACC
-	jmp 	Loop
-OP_STA_ABY_PORT:
-	nop		; // TODO
-	
-
-
-OP_STA_IX:				; *** $81 - STA (INDIRECT,X) 
-	HandleINDIRECT_X
-	breq	OP_STA_IX_PORT
-	st		Z, CPU_ACC
-	jmp 	Loop
-OP_STA_IX_PORT:
-	nop		; // TODO
-	
-
-
-
-OP_STA_IY:				; *** $91 - STA (INDIRECT),Y 
-	HandleINDIRECT_Y
-	breq	OP_STA_IY_PORT
-	st		Z, CPU_ACC
-	jmp 	Loop
-OP_STA_IY_PORT:
-	nop		; // TODO
-	
-
-
-
-;*****************************************************************************
-;
-; STX - X-Register
-;
-; M = X
-;
-; Stores the contents of the x-register into memory.
-;
-; C	Carry Flag			-
-; Z	Zero Flag			-
-; I	Interrupt Disable	-
-; D	Decimal Mode Flag	-
-; B	Break Command		-
-; V	Overflow Flag		-
-; N Negative Flag		-
-;
-
-OP_STX_ZP:				; *** $86 - STX ZEROPAGE
-	HandleZEROPAGE
-	st		Z, CPU_X
-	jmp 	Loop
-	
-
-
-
-OP_STX_ZPY:				; *** $96 - STX ZEROPAGE,Y 
-	HandleZEROPAGE_Y
-	st		Z, CPU_X
-	jmp 	Loop
-	
-
-
-OP_STX_AB:				; *** $8E - STX ABSOLUTE
-	nop
-	HandleABSOLUTE
-	StoreAbsolute CPU_X
-
-
-
-;*****************************************************************************
-;
-; STY - Store Y-Register
-;
-; M = Y
-;
-; Stores the contents of the y-register into memory.
-;
-; C	Carry Flag			-
-; Z	Zero Flag			-
-; I	Interrupt Disable	-
-; D	Decimal Mode Flag	-
-; B	Break Command		-
-; V	Overflow Flag		-
-; N Negative Flag		-
-;
-
-OP_STY_ZP:				; *** $84 - STY ZEROPAGE
-	HandleZEROPAGE
-	st		Z, CPU_Y
-	jmp 	Loop
-	
-
-
-OP_STY_ZPX:				; *** $94 - STY ZEROPAGE,X
-	HandleZEROPAGE_X
-	st		Z, CPU_Y
-	jmp 	Loop
-
-
-
-OP_STY_AB:				; *** $8C - STY ABSOLUTE
-	HandleABSOLUTE
-	StoreAbsolute CPU_Y
-
-
-	
-
-
-;*****************************************************************************
-;
-; LDA - Load Accumulator	
-;
-; A,Z,N = M
-;
-; Loads a byte of memory into the accumulator setting 
-; the zero and negative flags as appropriate
-;
-; C	Carry Flag			-
-; Z	Zero Flag			Set if A = 0
-; I	Interrupt Disable	-
-; D	Decimal Mode Flag	-
-; B	Break Command		-
-; V	Overflow Flag		-
-; N Negative Flag		Set if bit 7 of A is set
-;
- 
-OP_LDA_IM:				; *** $A9 - LDA IMMEDIATE
-#ifdef DEBUG
-	nop
-#endif 
-	ClearNZ
-	HandleIMMEDIATE
-	mov		CPU_ACC, ZL
-	tst		CPU_ACC
-	UpdateNZjmpLoop
-	
-
-OP_LDA_ZP:				; *** $A5 - LDA ZEROPAGE 
-#ifdef DEBUG
-	nop
-#endif 
-	ClearNZ
-	HandleZEROPAGE
-	ld		CPU_ACC, Z
-	tst		CPU_ACC
-	UpdateNZjmpLoop
-	
-
-
-OP_LDA_ZPX:				; *** $B5 - LDA ZEROPAGE,X 	
-#ifdef DEBUG
-	nop
-#endif 
-	ClearNZ
-	HandleZEROPAGE_X
-	ld		CPU_ACC, Z
-	tst		CPU_ACC
-	UpdateNZjmpLoop
-
-
-
-OP_LDA_AB:				; *** $AD - LDA ABSOLUTE  
-#ifdef DEBUG
-	nop
-#endif 
-	ClearNZ
-	HandleABSOLUTE
-	breq	LDA_AB_PORT
-	ld		CPU_ACC, Z
-	tst		CPU_ACC
-	UpdateNZjmpLoop
-	jmp 	Loop
-
-LDA_AB_PORT:
-	cpi		ZL, 0x04	; Timer?
-	brne	LDA_AB_PORT1
-	mov		CPU_ACC, tick		; TODO do real read from timer - not just fake
-	tst		CPU_ACC
-	jmp 	Loop
-
-LDA_AB_PORT1:
-	tst		CPU_ACC
-	jmp		Loop
-
-
-
-
-
-OP_LDA_ABX:				; *** $BD - LDA ABSOLUTE,X  
-#ifdef DEBUG
-	nop
-#endif 
-	ClearNZ
-	HandleABSOLUTE_X
-	ld		CPU_ACC, Z
-	tst		CPU_ACC
-	UpdateNZjmpLoop
-	
-
-
-
-OP_LDA_ABY:				; *** $B9 - LDA ABSOLUTE,Y 
-#ifdef DEBUG
-	nop
-#endif 
-	ClearNZ
-	HandleABSOLUTE_Y
-	ld		CPU_ACC, Z
-	tst		CPU_ACC
-	UpdateNZjmpLoop
-	
-
-
-
-OP_LDA_IX:				; *** $A1 - LDA (INDIRECT,X) 
-#ifdef DEBUG
-	nop
-#endif
-	ClearNZ
-	HandleINDIRECT_X
-	ld		CPU_ACC, Z
-	tst		CPU_ACC
-	UpdateNZjmpLoop
-	
-
-
-
-OP_LDA_IY:				; *** $B1 - LDA (INDIRECT),Y 
-#ifdef DEBUG
-	nop
-#endif
-	ClearNZ
-	HandleINDIRECT_Y
-	ld		CPU_ACC, Z
-	tst		CPU_ACC
-	UpdateNZjmpLoop
-	
-
-
-;*****************************************************************************
-;
-; LDX - Load X Register
-;
-; X,Z,N = M
-;
-; Loads a byte of memory into the x-register setting 
-; the zero and negative flags as appropriate
-;
-; C	Carry Flag			-
-; Z	Zero Flag			Set if X = 0
-; I	Interrupt Disable	-
-; D	Decimal Mode Flag	-
-; B	Break Command		-
-; V	Overflow Flag		-
-; N Negative Flag		Set if bit 7 of X is set
-;
- 
-OP_LDX_IM:				; *** $A2 - LDX IMMEDIATE
-	ClearNZ
-	HandleIMMEDIATE
-	mov		CPU_X, ZL
-	tst		CPU_X
-	UpdateNZjmpLoop
-
-
-
-OP_LDX_ZP:				; *** $A6 - LDX ZEROPAGE 
-	ClearNZ
-	HandleZEROPAGE
-	ld		CPU_X, Z
-	tst		CPU_X
-	UpdateNZjmpLoop
-	
-
-
-OP_LDX_ZPY:				; *** $B6 - LDX ZEROPAGE,Y 
-	ClearNZ
-	HandleZEROPAGE_Y
-	ld		CPU_X, Z
-	tst		CPU_X
-	UpdateNZjmpLoop
-	
-
-
-
-OP_LDX_AB:				; *** $AE - LDX ABSOLUTE 
-	ClearNZ
-	HandleABSOLUTE
-	ld		CPU_X, Z
-	tst		CPU_X
-	UpdateNZjmpLoop
-	
-
-
-
-OP_LDX_ABY:				; *** $BE - LDX ABSOLUTE,Y 
-	HandleABSOLUTE_Y
-	ld		CPU_X, Z
-	jmp Loop
-	
-
-
-;*****************************************************************************
-;
-; LDY - Load Y Register
-;
-; Y,Z,N = M
-;
-; Loads a byte of memory into the y-register setting 
-; the zero and negative flags as appropriate
-;
-; C	Carry Flag			-
-; Z	Zero Flag			Set if Y = 0
-; I	Interrupt Disable	-
-; D	Decimal Mode Flag	-
-; B	Break Command		-
-; V	Overflow Flag		-
-; N Negative Flag		Set if bit 7 of Y is set
-;
-
-OP_LDY_IM:				; *** $A0 - LDY IMMEDIATE
-#ifdef DEBUG	
-	nop
-#endif
-	ClearNZ
-	HandleIMMEDIATE
-	mov		CPU_Y, ZL
-	tst		CPU_Y
-	UpdateNZjmpLoop
-	
-
-
-
-OP_LDY_ZP:				; *** $A4 - LDY ZEROPAGE
-#ifdef DEBUG	
-	nop
-#endif
-	ClearNZ
-	HandleZEROPAGE
-	ld		CPU_Y, Z
-	tst		CPU_Y
-	UpdateNZjmpLoop
-	
-
-
-
-
-OP_LDY_ZPX:				; *** $B4 - LDY ZEROPAGE,X
-#ifdef DEBUG	
-	nop
-#endif
-	ClearNZ
-	HandleZEROPAGE_X
-	ld		CPU_Y, Z
-	tst		CPU_Y
-	UpdateNZjmpLoop
-	
-	
-
-
-OP_LDY_AB:				; *** $AC - LDY ABSOLUTE
-#ifdef DEBUG	
-	nop
-#endif
-	ClearNZ
-	HandleABSOLUTE
-	ld		CPU_Y, Z
-	tst		CPU_Y
-	UpdateNZjmpLoop
-
-	
-
-	
-OP_LDY_ABX:				; *** $BC - LDY ABSOLUTE,Y	
-#ifdef DEBUG	
-	nop
-#endif
-	ClearNZ
-	HandleABSOLUTE_X
-	ld		CPU_Y, Z
-	UpdateNZjmpLoop
-	
-
-
-
-
-;*****************************************************************************
-;
-; SEC - Set Carry Flag
-;
-; C = 1
-;
-; Set the carry flag to one.
-;
-; C	Carry Flag			1
-; Z	Zero Flag			-
-; I	Interrupt Disable	-
-; D	Decimal Mode Flag	- 
-; B	Break Command		- 
-; V	Overflow Flag		-
-; N	Negative Flag		-
-;
-
-OP_SEC:					; *** $38 - SEC
-	sbr		CPU_STATUS, MASK_FLAG_CARRY
-	jmp 	Loop
-	
-
-
-
-;*****************************************************************************
-;
-; SED - Set Decimal Flag
-;
-; D = 1
-;
-; Set the decimal mode flag to one.
-;
-; C	Carry Flag			-
-; Z	Zero Flag			-
-; I	Interrupt Disable	-
-; D	Decimal Mode Flag	1 
-; B	Break Command		- 
-; V	Overflow Flag		-
-; N	Negative Flag		-
-;
-
-OP_SED:					; *** $F8 - SED
-	sbr		CPU_STATUS, MASK_FLAG_DECIMAL
-	jmp 	Loop
-	
-
-
-;*****************************************************************************
-;
-; SEI - Set Interrupt Disable
-;
-; I = 1
-; 
-; Set the interrupt disable flag to one.
-;
-; C	Carry Flag			-
-; Z	Zero Flag			-
-; I	Interrupt Disable	1
-; D	Decimal Mode Flag	- 
-; B	Break Command		- 
-; V	Overflow Flag		-
-; N	Negative Flag		-
-;
-
-OP_SEI:					; *** $78 - SEI
-	sbr		CPU_STATUS, MASK_FLAG_INTERRUPT
-	jmp 	Loop
-	
-
-
-;*****************************************************************************
-;
-; CLC - Clear Carry Flag
-;
-; C = 0
-;
-; Set the carry flag to zero.
-;
-; C	Carry Flag			0
-; Z	Zero Flag			-
-; I	Interrupt Disable	-
-; D	Decimal Mode Flag	- 
-; B	Break Command		- 
-; V	Overflow Flag		-
-; N	Negative Flag		-
-;
-
-OP_CLC:					; *** $18 - CLC
-	cbr		CPU_STATUS, MASK_FLAG_CARRY
-	jmp 	Loop
-	
-
-
-;*****************************************************************************
-;
-; CLD - Clear Decimal Mode
-;
-; D = 0
-;
-; Sets the decimal mode flag to zero.
-;
-; C	Carry Flag			-
-; Z	Zero Flag			-
-; I	Interrupt Disable	-
-; D	Decimal Mode Flag	0 
-; B	Break Command		- 
-; V	Overflow Flag		-
-; N	Negative Flag		-
-;
-
-OP_CLD:					; *** $D8 - CLD
-	cbr		CPU_STATUS, MASK_FLAG_DECIMAL
-	jmp 	Loop
-	
-
-
-;*****************************************************************************
-;
-; CLI - Clear Interrupt Disable
-;
-; I = 0
-;
-; Clears the interrupt disable flag allowing normal interrupt requests to 
-; be serviced.
-;
-; C	Carry Flag			-
-; Z	Zero Flag			-
-; I	Interrupt Disable	0
-; D	Decimal Mode Flag	- 
-; B	Break Command		- 
-; V	Overflow Flag		-
-; N	Negative Flag		-
-;
- 
-OP_CLI:					; *** $58 - CLI
-	cbr		CPU_STATUS, MASK_FLAG_INTERRUPT
-	jmp 	Loop
-	
-
-
-;*****************************************************************************
-;
-; CLV - Clear Overflow Flag
-;
-; V = 0
-;
-; Clears the overflow flag.
-;
-; C	Carry Flag			-
-; Z	Zero Flag			-
-; I	Interrupt Disable	-
-; D	Decimal Mode Flag	- 
-; B	Break Command		- 
-; V	Overflow Flag		0
-; N	Negative Flag		-
-;
-
-OP_CLV:					; *** $B8 - CLV
-	cbr		CPU_STATUS, MASK_FLAG_OVERFLOW
-	jmp 	Loop
-
-
-
 
 
 ;*****************************************************************************
@@ -2580,208 +1091,6 @@ OP_RTS:					; *** $40 - RTS
 
 
 	
-
-;*****************************************************************************
-; BCC - Branch if Carry Clear
-;
-; If the carry flag is clear then add the relative displacement to the 
-; program counter to cause a branch to a new location.
-;
-; C	Carry Flag			-
-; Z	Zero Flag			-
-; I	Interrupt Disable	-
-; D	Decimal Mode Flag	- 
-; B	Break Command		- 
-; V	Overflow Flag		-
-; N	Negative Flag		-
-;
-
-OP_BCC:					; *** $90 - BCC
-	HandleRELATIVE
-	sbrc	CPU_STATUS, BIT_FLAG_CARRY
-	jmp		Loop
-	BranchJUMP
-
-
-
-	
-;*****************************************************************************
-;
-; BCS - Branch if Carry Set
-;
-; If the carry flag is set then add the relative displacement to the 
-; program counter to cause a branch to a new location.
-;
-; C	Carry Flag			-
-; Z	Zero Flag			-
-; I	Interrupt Disable	-
-; D	Decimal Mode Flag	- 
-; B	Break Command		- 
-; V	Overflow Flag		-
-; N	Negative Flag		-
-;
-
-OP_BCS:					; *** $B0 - BCS
-	HandleRELATIVE
-	sbrs	CPU_STATUS, BIT_FLAG_CARRY
-	jmp		Loop
-	BranchJUMP
-
-	
-
-
-;*****************************************************************************
-;
-; BEQ - Branch if Equal
-; 
-; If the zero flag is set then add the relative displacement to the 
-; program counter to cause a branch to a new location.
-;
-; C	Carry Flag			-
-; Z	Zero Flag			-
-; I	Interrupt Disable	-
-; D	Decimal Mode Flag	- 
-; B	Break Command		- 
-; V	Overflow Flag		-
-; N	Negative Flag		-
-;
-
-OP_BEQ:					; *** $F0 - BEQ
-	HandleRELATIVE
-	sbrs	CPU_STATUS, BIT_FLAG_ZERO
-	jmp		Loop
-	BranchJUMP
-
-	
-
-
-
-;*****************************************************************************
-;
-; BMI - Branch if Minus
-;
-; If the negative flag is set then add the relative displacement to the 
-; program counter to cause a branch to a new location.
-;
-; C	Carry Flag			-
-; Z	Zero Flag			-
-; I	Interrupt Disable	-
-; D	Decimal Mode Flag	- 
-; B	Break Command		- 
-; V	Overflow Flag		-
-; N	Negative Flag		-
-;
-
-OP_BMI:					; *** $30 - BMI
-	HandleRELATIVE
-	sbrs	CPU_STATUS, BIT_FLAG_NEGATIVE
-	jmp		Loop
-	BranchJUMP
-
-
-
-;*****************************************************************************
-;
-; BNE - Branch if Not Equal
-;
-; If the zero flag is clear then add the relative displacement to the 
-; program counter to cause a branch to a new location.
-;
-; C	Carry Flag			-
-; Z	Zero Flag			-
-; I	Interrupt Disable	-
-; D	Decimal Mode Flag	- 
-; B	Break Command		- 
-; V	Overflow Flag		-
-; N	Negative Flag		-
-;
-
-OP_BNE:					; *** $D0 - BNE
-	HandleRELATIVE
-	sbrc	CPU_STATUS, BIT_FLAG_ZERO
-	jmp		Loop
-	BranchJUMP
-
-
-
-;*****************************************************************************
-;
-; BPL - Branch if Positive
-;
-; If the negative flag is clear then add the relative displacement to the 
-; program counter to cause a branch to a new location.
-;
-; C	Carry Flag			-
-; Z	Zero Flag			-
-; I	Interrupt Disable	-
-; D	Decimal Mode Flag	- 
-; B	Break Command		- 
-; V	Overflow Flag		-
-; N	Negative Flag		-
-;
-
-OP_BPL:	
-	HandleRELATIVE		; *** $10 - BPL
-	sbrc	CPU_STATUS, BIT_FLAG_NEGATIVE
-	jmp		Loop
-	BranchJUMP
-
-
-
-
-
-;*****************************************************************************
-;
-; BVC - Branch if Overflow Clear
-;
-; If the overflow flag is clear then add the relative displacement to the 
-; program counter to cause a branch to a new location.
-;
-; C	Carry Flag			-
-; Z	Zero Flag			-
-; I	Interrupt Disable	-
-; D	Decimal Mode Flag	- 
-; B	Break Command		- 
-; V	Overflow Flag		-
-; N	Negative Flag		-
-;
-
-OP_BVC:					; *** $50 - BVC
-	HandleRELATIVE
-	sbrc	CPU_STATUS, BIT_FLAG_OVERFLOW
-	jmp		Loop
-	BranchJUMP
-
-
-	
-
-
-;*****************************************************************************
-;
-; BVS - Branch if Overflow Set
-;
-; If the overflow flag is set then add the relative displacement to the 
-; program counter to cause a branch to a new location.
-;
-; C	Carry Flag			-
-; Z	Zero Flag			-
-; I	Interrupt Disable	-
-; D	Decimal Mode Flag	- 
-; B	Break Command		- 
-; V	Overflow Flag		-
-; N	Negative Flag		-
-;
-
-OP_BVS:					; *** $70 - BVS
-	HandleRELATIVE
-	sbrs	CPU_STATUS, BIT_FLAG_OVERFLOW
-	jmp		Loop
-	BranchJUMP
-
-
-
-
-
 
 
 
@@ -2939,10 +1248,109 @@ OP_TYA:					; *** $98 - TYA
 	
 
 
-	.align	9			; Op Code Jump table must be aligned to a page boundry
+
+
+;*****************************************************************************
+;
+; NOP - No Operation
+;
+; The NOP instruction causes no changes to the processor other than the 
+; normal incrementing of the program counter to the next instruction.
+; 
+; C	Carry Flag			-
+; Z	Zero Flag			-
+; I	Interrupt Disable	-
+; D	Decimal Mode Flag	-
+; B	Break Command		-
+; V	Overflow Flag		-
+; N	Negative Flag		-
+;
+
+OP_NOP:					; *** $EA - NOP
+	jmp 	Loop
+
+
+
+
+
+;*****************************************************************************
+;
+; PHA - Push Accumulator
+;
+; Pushes a copy of the accumulator on to the stack.
+;
+; C	Carry Flag			-
+; Z	Zero Flag			-
+; I	Interrupt Disable	-
+; D	Decimal Mode Flag	-
+; B	Break Command		-
+; V	Overflow Flag		-
+; N Negative Flag		-
+;
+OP_PHA:					; ** $48 - PHA
+	ldi		ZH, 0x20+1		; Stack is 0x100-0x1FF on 6502. Offset this with 0x20 pages for SRAM
+	mov		ZL,	CPU_SP
+	st		Z, CPU_ACC
+	dec		CPU_SP		
+	jmp 	Loop
+	
+
+
+;*****************************************************************************
+;
+; PHP - Push Processor Status
+;
+; Pushes a copy of the status flags on to the stack.
+;
+; C	Carry Flag			-
+; Z	Zero Flag			-
+; I	Interrupt Disable	-
+; D	Decimal Mode Flag	-
+; B	Break Command		-
+; V	Overflow Flag		-
+; N	Negative Flag		-
+;
+
+OP_PHP:					; *** $08 - PHP
+	ldi		ZH, 0x20+1		; Stack is 0x100-0x1FF on 6502. Offset this with 0x20 pages for SRAM
+	mov		ZL,	CPU_SP
+	st		Z, CPU_STATUS
+	dec		CPU_SP		
+	jmp 	Loop
+	
+
+
+;*****************************************************************************
+;
+; PLP - Pull Processor Status
+;
+; Pulls an 8 bit value from the stack and into the processor flags. The 
+; flags will take on new states as determined by the value pulled.
+;
+;
+; C	Carry Flag			Set from stack
+; Z	Zero Flag			Set from stack
+; I	Interrupt Disable	Set from stack
+; D	Decimal Mode Flag	Set from stack
+; B	Break Command		Set from stack
+; V	Overflow Flag		Set from stack
+; N	Negative Flag		Set from stack
+;
+
+OP_PLP:					; *** $28 - PLP
+	ldi		ZH, 0x20+1		; Stack is 0x100-0x1FF on 6502. Offset this with 0x20 pages for SRAM
+	mov		ZL,	CPU_SP
+	inc		CPU_SP		
+	inc 	ZL
+	ld		CPU_STATUS, Z
+	jmp 	Loop
+	
+
+
+
+
+	.align	9			; Op Code Jump table must be aligned to a page boundrym
 OpJumpTable: 
 #include "OpCodeJumpTable.inc"
 
 
-BiosFlashData:
-#include "kim1-bios.inc"

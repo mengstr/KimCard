@@ -19,12 +19,16 @@
 #include <string.h>
 
 #include "i2cmaster.h"
+#include "kim1-bios.h"
 #include "main.h"
+
+
+
+void Emulate(void);
 
 void I2cTest(void);
 
 #define testbit(port, bit) (uint8_t)(((uint8_t)port & (uint8_t)_BV(bit)))
-
 
 __attribute__((section(".Kim1Ram"))) uint8_t Kim1Ram[1024];
 __attribute__((section(".Kim1Rom"))) uint8_t Kim1Rom[1024];
@@ -246,7 +250,6 @@ void CopyTestCode() {
 
 
 uint8_t SaveToEEprom(uint8_t slot) {
-	uint8_t res;
 	uint8_t i;
 	uint8_t block;
 	unsigned int src;
@@ -308,7 +311,7 @@ uint8_t LoadFromEEprom(uint8_t slot) {
 
 void CpuLed(uint8_t status) {
 	if (status==0) 	PORTB.OUTCLR=0b00000001;
-	else 	PORTB.OUTSET=0b00000001;
+	else PORTB.OUTSET=0b00000001;
 }
 
 
@@ -394,10 +397,6 @@ uint8_t GetKey() {
 
 
 
-//ISR(PORTB_INT0_vect) {
-//	PORTB_OUTTGL=0x01;
-//}
-
 
 int main(void) {
 	int i;
@@ -444,6 +443,10 @@ int main(void) {
 
 	// Clear all KIM-1 ram to 0x00 (BRK instruction)
 	for (i=0; i<1024; i++) Kim1Ram[i]=0x00;		
+
+	// Copy BIOS from internal EEPROM to RAM
+	eeprom_read_block((void *)Kim1Rom,(const void *)0, 1024);
+	
 
 	CopyTestCode();
 

@@ -15,7 +15,7 @@
 	jmp		OP_ASL_AB	; 0E ASL - Absolute
 	jmp		OP_NOP		; 0F 
 	jmp		OP_BPL		; 10 BPL
-	jmp		OP_ORA_IY	; 	11 ORA - (Indirect),Y
+	jmp		OP_ORA_IY	; 11 ORA - (Indirect),Y
 	jmp		OP_NOP		; 12 
 	jmp		OP_NOP		; 13 
 	jmp		OP_NOP		; 14 

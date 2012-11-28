@@ -20,8 +20,9 @@
     <OverrideVtor>false</OverrideVtor>
     <OverrideVtorValue />
     <eraseonlaunchrule>0</eraseonlaunchrule>
-    <avrtoolinterface>PDI</avrtoolinterface>
-    <avrtool>com.atmel.avrdbg.tool.avrdragon</avrtool>
+    <avrtoolinterface>
+    </avrtoolinterface>
+    <avrtool>com.atmel.avrdbg.tool.simulator</avrtool>
     <com_atmel_avrdbg_tool_avrdragon>
       <ToolType>com.atmel.avrdbg.tool.avrdragon</ToolType>
       <ToolName>AVR Dragon</ToolName>
@@ -32,7 +33,7 @@
       </OverrideVtorValue>
       <Channel>
         <host>127.0.0.1</host>
-        <port>55725</port>
+        <port>51615</port>
         <ssl>False</ssl>
       </Channel>
       <ToolOptions>
@@ -62,7 +63,7 @@
       </OverrideVtorValue>
       <Channel>
         <host>127.0.0.1</host>
-        <port>55725</port>
+        <port>51615</port>
         <ssl>False</ssl>
       </Channel>
     </com_atmel_avrdbg_tool_simulator>
@@ -103,6 +104,7 @@
   <avrgcc.common.outputfiles.hex>True</avrgcc.common.outputfiles.hex>
   <avrgcc.common.outputfiles.lss>True</avrgcc.common.outputfiles.lss>
   <avrgcc.common.outputfiles.eep>True</avrgcc.common.outputfiles.eep>
+  <avrgcc.common.outputfiles.srec>True</avrgcc.common.outputfiles.srec>
   <avrgcc.compiler.general.ChangeDefaultCharTypeUnsigned>True</avrgcc.compiler.general.ChangeDefaultCharTypeUnsigned>
   <avrgcc.compiler.general.ChangeDefaultBitFieldUnsigned>True</avrgcc.compiler.general.ChangeDefaultBitFieldUnsigned>
   <avrgcc.compiler.symbols.DefSymbols>
@@ -112,7 +114,7 @@
   </avrgcc.compiler.symbols.DefSymbols>
   <avrgcc.compiler.optimization.PackStructureMembers>True</avrgcc.compiler.optimization.PackStructureMembers>
   <avrgcc.compiler.optimization.AllocateBytesNeededForEnum>True</avrgcc.compiler.optimization.AllocateBytesNeededForEnum>
-  <avrgcc.compiler.optimization.DebugLevel>Maximum (-g3)</avrgcc.compiler.optimization.DebugLevel>
+  <avrgcc.compiler.optimization.DebugLevel>Default (-g2)</avrgcc.compiler.optimization.DebugLevel>
   <avrgcc.compiler.warnings.AllWarnings>True</avrgcc.compiler.warnings.AllWarnings>
   <avrgcc.linker.libraries.Libraries>
     <ListValues>
@@ -145,9 +147,10 @@
   <PropertyGroup Condition=" '$(Configuration)' == 'Simulator' ">
     <ToolchainSettings>
       <AvrGcc>
-  <avrgcc.common.outputfiles.hex>True</avrgcc.common.outputfiles.hex>
-  <avrgcc.common.outputfiles.lss>True</avrgcc.common.outputfiles.lss>
-  <avrgcc.common.outputfiles.eep>True</avrgcc.common.outputfiles.eep>
+  <avrgcc.common.outputfiles.hex>False</avrgcc.common.outputfiles.hex>
+  <avrgcc.common.outputfiles.lss>False</avrgcc.common.outputfiles.lss>
+  <avrgcc.common.outputfiles.eep>False</avrgcc.common.outputfiles.eep>
+  <avrgcc.common.outputfiles.srec>False</avrgcc.common.outputfiles.srec>
   <avrgcc.compiler.general.ChangeDefaultCharTypeUnsigned>True</avrgcc.compiler.general.ChangeDefaultCharTypeUnsigned>
   <avrgcc.compiler.general.ChangeDefaultBitFieldUnsigned>True</avrgcc.compiler.general.ChangeDefaultBitFieldUnsigned>
   <avrgcc.compiler.symbols.DefSymbols>
@@ -160,6 +163,7 @@
   <avrgcc.compiler.optimization.AllocateBytesNeededForEnum>True</avrgcc.compiler.optimization.AllocateBytesNeededForEnum>
   <avrgcc.compiler.optimization.DebugLevel>Maximum (-g3)</avrgcc.compiler.optimization.DebugLevel>
   <avrgcc.compiler.warnings.AllWarnings>True</avrgcc.compiler.warnings.AllWarnings>
+  <avrgcc.compiler.miscellaneous.Verbose>True</avrgcc.compiler.miscellaneous.Verbose>
   <avrgcc.linker.libraries.Libraries>
     <ListValues>
       <Value>m</Value>
@@ -190,16 +194,34 @@
     <OutputPath>bin\Simulator\</OutputPath>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="adc.s">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="branch.s">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="compare.s">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="flag.s">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="i2cmaster.h">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="i2cmaster.S">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="kim1-bios.inc">
+    <Compile Include="kim1-bios.h">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="emulator.s">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="load.s">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="logicals.s">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="main.c">
@@ -208,15 +230,18 @@
     <Compile Include="main.h">
       <SubType>compile</SubType>
     </Compile>
+    <Compile Include="sbc.s">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="store.s">
+      <SubType>compile</SubType>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <None Include="macros.inc">
       <SubType>compile</SubType>
     </None>
     <None Include="OpCodeJumpTable.inc">
-      <SubType>compile</SubType>
-    </None>
-    <None Include="opcodes.inc">
       <SubType>compile</SubType>
     </None>
   </ItemGroup>
