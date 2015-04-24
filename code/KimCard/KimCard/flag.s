@@ -10,6 +10,7 @@
 .global OP_CLD
 .global OP_SED
 
+
 ;*****************************************************************************
 ;
 ; SEC - Set Carry Flag
@@ -28,6 +29,9 @@
 ;
 
 OP_SEC:					; *** $38 - SEC
+#ifdef DEBUG
+	nop
+#endif
 	sbr		CPU_STATUS, MASK_FLAG_CARRY
 	jmp 	Loop
 	
@@ -52,6 +56,9 @@ OP_SEC:					; *** $38 - SEC
 ;
 
 OP_SED:					; *** $F8 - SED
+#ifdef DEBUG
+	nop
+#endif
 	sbr		CPU_STATUS, MASK_FLAG_DECIMAL
 	jmp 	Loop
 	
@@ -75,6 +82,9 @@ OP_SED:					; *** $F8 - SED
 ;
 
 OP_SEI:					; *** $78 - SEI
+#ifdef DEBUG
+	nop
+#endif
 	sbr		CPU_STATUS, MASK_FLAG_INTERRUPT
 	jmp 	Loop
 	
@@ -98,6 +108,9 @@ OP_SEI:					; *** $78 - SEI
 ;
 
 OP_CLC:					; *** $18 - CLC
+#ifdef DEBUG
+	nop
+#endif
 	cbr		CPU_STATUS, MASK_FLAG_CARRY
 	jmp 	Loop
 	
@@ -121,6 +134,9 @@ OP_CLC:					; *** $18 - CLC
 ;
 
 OP_CLD:					; *** $D8 - CLD
+#ifdef DEBUG
+	nop
+#endif
 	cbr		CPU_STATUS, MASK_FLAG_DECIMAL
 	jmp 	Loop
 	
@@ -145,6 +161,9 @@ OP_CLD:					; *** $D8 - CLD
 ;
  
 OP_CLI:					; *** $58 - CLI
+#ifdef DEBUG
+	nop
+#endif
 	cbr		CPU_STATUS, MASK_FLAG_INTERRUPT
 	jmp 	Loop
 	
@@ -168,6 +187,9 @@ OP_CLI:					; *** $58 - CLI
 ;
 
 OP_CLV:					; *** $B8 - CLV
+#ifdef DEBUG
+	nop
+#endif
 	cbr		CPU_STATUS, MASK_FLAG_OVERFLOW
 	jmp 	Loop
 

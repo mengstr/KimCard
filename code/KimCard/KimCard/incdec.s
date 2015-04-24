@@ -36,6 +36,9 @@
 ;
 
 OP_INC_ZP:				; *** $E6 - INC ZEROPAGE
+#ifdef DEBUG
+	nop
+#endif
 	ClearNZ
 	HandleZEROPAGE
 	ld		r16, Z
@@ -44,8 +47,13 @@ OP_INC_ZP:				; *** $E6 - INC ZEROPAGE
 	UpdateNZjmpLoop
 
 
+;-----------------------------------------------------------------------------
+
 
 OP_INC_ZPX:				; *** $F6 - INC ZEROPAEGE,X
+#ifdef DEBUG
+	nop
+#endif
 	ClearNZ
 	HandleZEROPAGE_X
 	ld		r16, Z
@@ -54,29 +62,34 @@ OP_INC_ZPX:				; *** $F6 - INC ZEROPAEGE,X
 	UpdateNZjmpLoop
 
 
+;-----------------------------------------------------------------------------
 
 
 OP_INC_AB:				; *** $EE - INC ABSOLUTE
+#ifdef DEBUG
+	nop
+#endif
 	ClearNZ
 	HandleABSOLUTE
 	ld		r16, Z
 	inc		r16
 	st		Z, r16
 	UpdateNZjmpLoop
-	
 
+
+;-----------------------------------------------------------------------------
 
 
 OP_INC_ABX:				; *** $FE - INC ABSOLUTE,X
+#ifdef DEBUG
+	nop
+#endif
 	ClearNZ
 	HandleABSOLUTE_X
 	ld		r16, Z
 	inc		r16
 	st		Z, r16
 	UpdateNZjmpLoop
-
-
-
 
 
 
@@ -98,10 +111,13 @@ OP_INC_ABX:				; *** $FE - INC ABSOLUTE,X
 ;
 
 OP_INX:					; *** $E8 - INX 
+#ifdef DEBUG
+	nop
+#endif
 	ClearNZ
 	inc		CPU_X
 	UpdateNZjmpLoop
-	
+
 
 
 
@@ -124,10 +140,12 @@ OP_INX:					; *** $E8 - INX
 ;
 
 OP_INY:					; *** $C8 - INY
+#ifdef DEBUG
+	nop
+#endif
 	ClearNZ
 	inc		CPU_Y
 	UpdateNZjmpLoop
-
 
 
 
@@ -151,6 +169,9 @@ OP_INY:					; *** $C8 - INY
 ;
 
 OP_DEC_ZP:				; *** $C6 - DEC ZEROPAGE	
+#ifdef DEBUG
+	nop
+#endif
 	ClearNZ
 	HandleZEROPAGE
 	ld		r16, Z
@@ -159,8 +180,13 @@ OP_DEC_ZP:				; *** $C6 - DEC ZEROPAGE
 	UpdateNZjmpLoop
 
 
+;-----------------------------------------------------------------------------
+
 
 OP_DEC_ZPX:				; *** $D6 - DEC ZEROPAGE,X
+#ifdef DEBUG
+	nop
+#endif
 	ClearNZ
 	HandleZEROPAGE_X
 	ld		r16, Z
@@ -169,8 +195,13 @@ OP_DEC_ZPX:				; *** $D6 - DEC ZEROPAGE,X
 	UpdateNZjmpLoop
 
 
+;-----------------------------------------------------------------------------
+
 
 OP_DEC_AB:				; *** $CE - DEC ABSOLUTE
+#ifdef DEBUG
+	nop
+#endif
 	ClearNZ
 	HandleABSOLUTE
 	ld		r16, Z
@@ -179,15 +210,19 @@ OP_DEC_AB:				; *** $CE - DEC ABSOLUTE
 	UpdateNZjmpLoop
 
 
+;-----------------------------------------------------------------------------
+
 
 OP_DEC_ABX:				; *** $DE - DEC ABSOLUTE,X
+#ifdef DEBUG
+	nop
+#endif
 	ClearNZ
 	HandleABSOLUTE_X
 	ld		r16, Z
 	dec		r16
 	st		Z, r16
 	UpdateNZjmpLoop
-
 
 
 
@@ -211,6 +246,9 @@ OP_DEC_ABX:				; *** $DE - DEC ABSOLUTE,X
 ;
 
 OP_DEX:					; *** $CA - DEX
+#ifdef DEBUG
+	nop
+#endif
 	ClearNZ
 	dec		CPU_X
 	UpdateNZjmpLoop
@@ -237,6 +275,9 @@ OP_DEX:					; *** $CA - DEX
 ;
 
 OP_DEY:					; *** $88 - DEY
+#ifdef DEBUG
+	nop
+#endif
 	ClearNZ
 	dec		CPU_Y
 	UpdateNZjmpLoop

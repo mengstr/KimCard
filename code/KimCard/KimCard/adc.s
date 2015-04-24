@@ -12,6 +12,8 @@
 .global	OP_ADC_ABX
 
 
+
+
 ;*****************************************************************************
 ;
 ; ADC - Add with Carry
@@ -34,11 +36,13 @@
 ;
 
 OP_ADC_IM:				; *** $69 - ADC IMMEDIATE 
+#ifdef DEBUG
+	nop
+#endif
 	HandleIMMEDIATE
 	sbrc	CPU_STATUS, BIT_FLAG_DECIMAL
 	jmp		ADC_IM_DECIMAL
-	sbrc	CPU_STATUS, BIT_FLAG_CARRY	; Set AVR carry if 6502 carry is set
-	sec
+	CPUCarryToAVR	
 	adc		CPU_ACC, ZL
 	UpdateNCZVjmpLoop
 
@@ -46,34 +50,37 @@ ADC_IM_DECIMAL:
 	jmp		ADC_DECIMAL
 
 
+;-----------------------------------------------------------------------------
 
 
 OP_ADC_ZP:				; *** $65 - ADC ZEROPAGE
-						; TODO : Handle Decimal Mode
+#ifdef DEBUG
+	nop
+#endif
 	HandleZEROPAGE
 	sbrc	CPU_STATUS, BIT_FLAG_DECIMAL
 	jmp		ADC_ZP_DECIMAL
 
 	ld		r16, Z
-	sbrc	CPU_STATUS, BIT_FLAG_CARRY	; Set AVR carry if 6502 carry is set
-	sec
+	CPUCarryToAVR	
 	adc		CPU_ACC, r16
 	UpdateNCZVjmpLoop
 
 ADC_ZP_DECIMAL:  // TODO
-	
 
 
+;-----------------------------------------------------------------------------
 
 
 OP_ADC_ZPX:				; *** $75 - ADC ZEROPAGE,X
-						; TODO : Handle Decimal Mode
+#ifdef DEBUG
+	nop
+#endif
 	HandleZEROPAGE_X
 	sbrc	CPU_STATUS, BIT_FLAG_DECIMAL
 	jmp		ADC_ZP_X_DECIMAL
 	ld		r16, Z
-	sbrc	CPU_STATUS, BIT_FLAG_CARRY	; Set AVR carry if 6502 carry is set
-	sec
+	CPUCarryToAVR	
 	adc		CPU_ACC, r16
 	UpdateNCZVjmpLoop
 
@@ -82,77 +89,97 @@ ADC_ZP_X_DECIMAL: //TODO
 	jmp		ADC_DECIMAL
 
 
+;-----------------------------------------------------------------------------
+
 
 OP_ADC_AB:				; *** $6D - ABSOLUTE
-						; TODO : Handle Decimal Mode
+#ifdef DEBUG
+	nop
+#endif
 	HandleABSOLUTE
 	sbrc	CPU_STATUS, BIT_FLAG_DECIMAL
 	jmp		ADC_AB_DECIMAL
 	ld		r16, Z
-	sbrc	CPU_STATUS, BIT_FLAG_CARRY	; Set AVR carry if 6502 carry is set
-	sec
+	CPUCarryToAVR	
 	adc		CPU_ACC, r16
 	UpdateNCZVjmpLoop
 
 ADC_AB_DECIMAL: 	// TODO
 
+
+;-----------------------------------------------------------------------------
+
+
 OP_ADC_ABX:				; *** $7D - ADC ABSOLUTE,X
-						; TODO : Handle Decimal Mode
+#ifdef DEBUG
+	nop
+#endif
 	HandleABSOLUTE_X
 	sbrc	CPU_STATUS, BIT_FLAG_DECIMAL
 	jmp		ADC_ABX_DECIMAL
 	ld		r16, Z
-	sbrc	CPU_STATUS, BIT_FLAG_CARRY	; Set AVR carry if 6502 carry is set
-	sec
+	CPUCarryToAVR	
 	adc		CPU_ACC, r16
 	UpdateNCZVjmpLoop
 	
 ADC_ABX_DECIMAL:  //TODO
 
 
+;-----------------------------------------------------------------------------
+
 
 OP_ADC_ABY:				; *** $79 - ADC ABSOLUTE,Y
-						; TODO : Handle Decimal Mode
+#ifdef DEBUG
+	nop
+#endif
 	HandleABSOLUTE_Y
 	sbrc	CPU_STATUS, BIT_FLAG_DECIMAL
 	jmp		ADC_ABY_DECIMAL
 	ld		r16, Z
-	sbrc	CPU_STATUS, BIT_FLAG_CARRY	; Set AVR carry if 6502 carry is set
-	sec
+	CPUCarryToAVR	
 	adc		CPU_ACC, r16
 	UpdateNCZVjmpLoop
 
 ADC_ABY_DECIMAL:	// TODO
 
 
+;-----------------------------------------------------------------------------
+
+
 OP_ADC_IX:				; *** $61 - ADC (INDIRECT,X)
-						; TODO : Handle Decimal Mode
+#ifdef DEBUG
+	nop
+#endif
 	HandleINDIRECT_X
 	sbrc	CPU_STATUS, BIT_FLAG_DECIMAL
 	jmp		ADC_IX_DECIMAL
 	ld		r16, Z
-	sbrc	CPU_STATUS, BIT_FLAG_CARRY	; Set AVR carry if 6502 carry is set
-	sec
+	CPUCarryToAVR	
 	adc		CPU_ACC, r16
 	UpdateNCZVjmpLoop
 
 ADC_IX_DECIMAL: //TODO	
 
+
+;-----------------------------------------------------------------------------
+
+
 OP_ADC_IY:				; *** $71 - ADC (INDIRECT),Y
-						; TODO : Handle Decimal Mode
+#ifdef DEBUG
+	nop
+#endif
 	HandleINDIRECT_Y
 	sbrc	CPU_STATUS, BIT_FLAG_DECIMAL
 	jmp		ADC_IY_DECIMAL
 	ld		r16, Z
-	sbrc	CPU_STATUS, BIT_FLAG_CARRY	; Set AVR carry if 6502 carry is set
-	sec
+	CPUCarryToAVR	
 	adc		CPU_ACC, r16
 	UpdateNCZVjmpLoop
 	
 ADC_IY_DECIMAL: //TODO
 
 
-
+;-----------------------------------------------------------------------------
 
 
 ;
@@ -160,24 +187,60 @@ ADC_IY_DECIMAL: //TODO
 ;--------------------------
 ;$75 ADC ZP,X
 ;$E9 SBC #
-;$69 ADC #		DONE
 ;$E5 SBC ZP
-;
-;
-;
-; DECIMAL MODE ALGORITHM
-;--------------------------
-;	R=T2*16+T1
-;ELSE
-;	T2=NH1+NH2
-;	IF T2>9 THEN T2=T2-10
-;	R=T2*16+T1
+;$69 ADC #		
 ;
 
 ;
 ; CPU_ACC = CPU_ACC + ZL
 ;
 ADC_DECIMAL:
+	CPUCarryToAVR	
+BCDadd:
+	ldi		R16,6			;value to be added later
+	add		CPU_ACC,ZL		;add the numbers binary
+	clr		ZL				;clear BCD carry
+	brcc	add_0			;if carry not clear
+	ldi		ZL,1			;    set BCD carry
+add_0:	
+	brhs	add_1			;if half carry not set
+	add		CPU_ACC,R16		;    add 6 to LSD
+	brhs	add_2			;    if half carry not set (LSD <= 9)
+	subi	CPU_ACC,6		;        restore value
+	rjmp	add_2			;else
+add_1:	
+	add		CPU_ACC,R16		;    add 6 to LSD
+add_2:	
+	brcc	add_2a
+	ldi		ZL,1	
+add_2a:	
+	swap	R16
+	add		CPU_ACC,R16		;add 6 to MSD
+	brcs	add_4			;if carry not set (MSD <= 9)
+	sbrs	ZL,0			;    if previous carry not set
+	subi	CPU_ACC,0x60	;	restore value
+add_3:	
+	tst		CPU_ACC
+	clc
+	UpdateNCZVjmpLoop		;else
+add_4:	
+	tst		CPU_ACC
+	sec
+	UpdateNCZVjmpLoop
+
+
+
+
+
+
+
+
+
+
+	/*
+
+
+
 	// Split CPU_ACC into nybbles in r17(H) and r16(L)
 	mov		r16,CPU_ACC
 	andi	r16,0x0f
@@ -237,3 +300,4 @@ ADC_DECIMAL_NoCarryOnHighNybble2:
 	tst		CPU_ACC
 	UpdateNCZVjmpLoop
 
+*/

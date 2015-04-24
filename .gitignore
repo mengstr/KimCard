@@ -1,3 +1,4 @@
+*~
 *.bak
 *.hex
 *.HEX
@@ -10,9 +11,11 @@
 *.map
 *.o
 *.d
-*/Debug/*
-*/Release/*
-*/Simulate/*
+Debug
+Release
+Simulate
 *.*#*
 Thumbs.db
 *Copy
+*.tmp
+TcfTransactionLog.csv

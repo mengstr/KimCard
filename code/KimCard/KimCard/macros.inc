@@ -22,6 +22,14 @@
 
 
 
+.MACRO CPUCarryToAVR
+	clc
+	sbrc	CPU_STATUS, BIT_FLAG_CARRY	; Set AVR carry if 6502 carry is set
+	sec
+.ENDM
+
+
+
 .MACRO HandleABSOLUTE
 	FixPage
 	ld		ZL, Y+			; Absolute Address (low)

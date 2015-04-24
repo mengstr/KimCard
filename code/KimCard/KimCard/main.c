@@ -191,7 +191,7 @@ void CopyTestCode() {
 	i=0x200;
 	uint8_t code6502[1024] = 
 
-"EAA903C906A905C906A906C906A907C906A9F0C906a9FCC906A9A3C9AAA9A9C9AAA9AAC9AAA9B0C9AA00"
+//"EAA903C906A905C906A906C906A907C906A9F0C906a9FCC906A9A3C9AAA9A9C9AAA9AAC9AAA9B0C9AA00"
 
 
 //	"EAEAEAEAFAEAEA4C0102"
@@ -218,6 +218,12 @@ void CopyTestCode() {
 // HI/LO
 //"F8A5E0386900A201C999D0018A85E020401FD0EDD8A99985FBA90085FAA2A086F986E1201F1F206A1FC913F0D3C5E2F0F28552C90AF010B0EA0A0A0A0AA2030A26F9CA10FA30DCA5F9C5E09006C5FBB0D285FBA6E0E4F9900BA6FAE4F9B0C485FAA6E1E8E0AAF0B5D0B"
 	
+// ADD 1 DECIMAL MODE
+//"A900F81869014C0402"
+	
+// Test decimal mode $00==00 ok, $00!=00 error
+"D8A9018500A98085018502A900850385FB04A001203602E001F01A205102E001F0B213E601E603D0ECE602E604D0E68810E32CA90085000000C001A5016502A2005001CFE8C001A5036504B0043001E8601001E8CE60C001A501E502A2005001E8C001A503ACE50448A9FFE900C9FED005683001E8604F6890FB1001E8603B"
+	
 	
 	"\0\0\0";
 	uint8_t *pos = code6502;	
@@ -236,7 +242,6 @@ void CopyTestCode() {
 //	#endif	
 
 }
-
 
 
 #define VIRTUAL_A	0x00
@@ -463,11 +468,14 @@ int main(void) {
 		for (;;) {
 			k=GetKey();
 
-			if (k==255) waitrelease=0;			// NO KEY
+			// NO KEY
+			if (k==255) waitrelease=0;			
 
-			if (k==22) break;					// RESET = GO BACK TO EMULATION
+			// RESET = GO BACK TO EMULATION
+			if (k==22) break;					
 				
-			if (k==19 && !waitrelease) {		// GO = DO THE SAVE OR LOAD
+			// GO = DO THE SAVE OR LOAD
+			if (k==19 && !waitrelease) {		
 				display[1]=charMap[' '-32];
 				display[2]=0x80;
 				display[3]=0x80;
@@ -477,10 +485,12 @@ int main(void) {
 					ScanDisplay();
 					dly(1);
 				}
-				if (mode==0) {		// Read 1K from EEPROM
+				// Read 1K from EEPROM
+				if (mode==0) {		
 					display[0]=charMap['L'-32];
 					res=LoadFromEEprom(slot);
-				} else {			// Write 1K to EEPROM
+				// Write 1K to EEPROM
+				} else {			
 					display[0]=charMap['S'-32];
 					res=SaveToEEprom(slot);
 				}
@@ -501,18 +511,24 @@ int main(void) {
 				}					
 			}
 
-			if (k==21 && !waitrelease) {		// ST = TOGGLE SAVE/LOAD MODE
+			// ST = TOGGLE SAVE/LOAD MODE
+			if (k==21 && !waitrelease) {		
 				mode=1-mode;
 				waitrelease=1;
 			}
+			
+			
+			
 
-			if (k==18 && !waitrelease) {		// + = INCREMENT SLOT # 00..29
+			// + = INCREMENT SLOT # 00..29
+			if (k==18 && !waitrelease) {		
 				slot++;
 				if (slot==30) slot=0;
 				waitrelease=1;
 			}
 
-			if (k<10 && !waitrelease) {			// 0..9 = CHANGE SLOT #
+			// 0..9 = CHANGE SLOT #
+			if (k<10 && !waitrelease) {			
 				slot=slot%10;
 				if (slot>2) slot=2;
 				slot=slot*10;

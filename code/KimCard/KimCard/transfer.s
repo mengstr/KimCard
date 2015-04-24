@@ -31,11 +31,13 @@
 ;
 
 OP_TAX:					; *** $AA - TAX 
+#ifdef DEBUG
+	nop
+#endif
 	ClearNZ
 	mov		CPU_X, CPU_ACC
 	UpdateNZjmpLoop
 	
-
 
 
 ;*****************************************************************************
@@ -57,11 +59,13 @@ OP_TAX:					; *** $AA - TAX
 ;
 
 OP_TAY:					; *** $A8 - TAY 
+#ifdef DEBUG
+	nop
+#endif
 	ClearNZ
 	mov		CPU_Y, CPU_ACC
 	UpdateNZjmpLoop
 	
-
 
 
 ;*****************************************************************************
@@ -83,6 +87,9 @@ OP_TAY:					; *** $A8 - TAY
 ;
 
 OP_TSX:					; *** $BA - TSX
+#ifdef DEBUG
+	nop
+#endif
 	ClearNZ
 	mov		CPU_X, CPU_SP
 	UpdateNZjmpLoop
@@ -109,6 +116,9 @@ OP_TSX:					; *** $BA - TSX
 ;
 
 OP_TXA:					; *** $8A - TXA 
+#ifdef DEBUG
+	nop
+#endif
 	ClearNZ
 	mov		CPU_ACC, CPU_X
 	UpdateNZjmpLoop
@@ -134,6 +144,9 @@ OP_TXA:					; *** $8A - TXA
 ;
 
 OP_TXS:					; *** $9A - TXS
+#ifdef DEBUG
+	nop
+#endif
 	ClearNZ
 	mov		CPU_SP, CPU_X
 	UpdateNZjmpLoop
@@ -159,6 +172,9 @@ OP_TXS:					; *** $9A - TXS
 ;
 
 OP_TYA:					; *** $98 - TYA 
+#ifdef DEBUG
+	nop
+#endif
 	ClearNZ
 	mov		CPU_ACC, CPU_Y
 	UpdateNZjmpLoop

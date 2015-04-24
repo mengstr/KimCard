@@ -51,7 +51,10 @@ OP_LDA_IM:				; *** $A9 - LDA IMMEDIATE
 	mov		CPU_ACC, ZL
 	tst		CPU_ACC
 	UpdateNZjmpLoop
-	
+
+
+;-----------------------------------------------------------------------------
+
 
 OP_LDA_ZP:				; *** $A5 - LDA ZEROPAGE 
 #ifdef DEBUG
@@ -62,7 +65,9 @@ OP_LDA_ZP:				; *** $A5 - LDA ZEROPAGE
 	ld		CPU_ACC, Z
 	tst		CPU_ACC
 	UpdateNZjmpLoop
-	
+
+
+;-----------------------------------------------------------------------------
 
 
 OP_LDA_ZPX:				; *** $B5 - LDA ZEROPAGE,X 	
@@ -75,6 +80,8 @@ OP_LDA_ZPX:				; *** $B5 - LDA ZEROPAGE,X
 	tst		CPU_ACC
 	UpdateNZjmpLoop
 
+
+;-----------------------------------------------------------------------------
 
 
 OP_LDA_AB:				; *** $AD - LDA ABSOLUTE  
@@ -101,7 +108,7 @@ LDA_AB_PORT1:
 	jmp		Loop
 
 
-
+;-----------------------------------------------------------------------------
 
 
 OP_LDA_ABX:				; *** $BD - LDA ABSOLUTE,X  
@@ -113,8 +120,9 @@ OP_LDA_ABX:				; *** $BD - LDA ABSOLUTE,X
 	ld		CPU_ACC, Z
 	tst		CPU_ACC
 	UpdateNZjmpLoop
-	
 
+
+;-----------------------------------------------------------------------------
 
 
 OP_LDA_ABY:				; *** $B9 - LDA ABSOLUTE,Y 
@@ -126,8 +134,9 @@ OP_LDA_ABY:				; *** $B9 - LDA ABSOLUTE,Y
 	ld		CPU_ACC, Z
 	tst		CPU_ACC
 	UpdateNZjmpLoop
-	
 
+
+;-----------------------------------------------------------------------------
 
 
 OP_LDA_IX:				; *** $A1 - LDA (INDIRECT,X) 
@@ -139,8 +148,9 @@ OP_LDA_IX:				; *** $A1 - LDA (INDIRECT,X)
 	ld		CPU_ACC, Z
 	tst		CPU_ACC
 	UpdateNZjmpLoop
-	
 
+
+;-----------------------------------------------------------------------------
 
 
 OP_LDA_IY:				; *** $B1 - LDA (INDIRECT),Y 
@@ -174,6 +184,9 @@ OP_LDA_IY:				; *** $B1 - LDA (INDIRECT),Y
 ;
  
 OP_LDX_IM:				; *** $A2 - LDX IMMEDIATE
+#ifdef DEBUG
+	nop
+#endif
 	ClearNZ
 	HandleIMMEDIATE
 	mov		CPU_X, ZL
@@ -181,37 +194,55 @@ OP_LDX_IM:				; *** $A2 - LDX IMMEDIATE
 	UpdateNZjmpLoop
 
 
+;-----------------------------------------------------------------------------
+
 
 OP_LDX_ZP:				; *** $A6 - LDX ZEROPAGE 
+#ifdef DEBUG
+	nop
+#endif
 	ClearNZ
 	HandleZEROPAGE
 	ld		CPU_X, Z
 	tst		CPU_X
 	UpdateNZjmpLoop
-	
+
+
+;-----------------------------------------------------------------------------
 
 
 OP_LDX_ZPY:				; *** $B6 - LDX ZEROPAGE,Y 
+#ifdef DEBUG
+	nop
+#endif
 	ClearNZ
 	HandleZEROPAGE_Y
 	ld		CPU_X, Z
 	tst		CPU_X
 	UpdateNZjmpLoop
-	
 
+
+;-----------------------------------------------------------------------------
 
 
 OP_LDX_AB:				; *** $AE - LDX ABSOLUTE 
+#ifdef DEBUG
+	nop
+#endif
 	ClearNZ
 	HandleABSOLUTE
 	ld		CPU_X, Z
 	tst		CPU_X
 	UpdateNZjmpLoop
-	
 
+
+;-----------------------------------------------------------------------------
 
 
 OP_LDX_ABY:				; *** $BE - LDX ABSOLUTE,Y 
+#ifdef DEBUG
+	nop
+#endif
 	HandleABSOLUTE_Y
 	ld		CPU_X, Z
 	jmp Loop
@@ -245,8 +276,9 @@ OP_LDY_IM:				; *** $A0 - LDY IMMEDIATE
 	mov		CPU_Y, ZL
 	tst		CPU_Y
 	UpdateNZjmpLoop
-	
 
+
+;-----------------------------------------------------------------------------
 
 
 OP_LDY_ZP:				; *** $A4 - LDY ZEROPAGE
@@ -258,9 +290,9 @@ OP_LDY_ZP:				; *** $A4 - LDY ZEROPAGE
 	ld		CPU_Y, Z
 	tst		CPU_Y
 	UpdateNZjmpLoop
-	
 
 
+;-----------------------------------------------------------------------------
 
 
 OP_LDY_ZPX:				; *** $B4 - LDY ZEROPAGE,X
@@ -272,8 +304,9 @@ OP_LDY_ZPX:				; *** $B4 - LDY ZEROPAGE,X
 	ld		CPU_Y, Z
 	tst		CPU_Y
 	UpdateNZjmpLoop
-	
-	
+
+
+;-----------------------------------------------------------------------------
 
 
 OP_LDY_AB:				; *** $AC - LDY ABSOLUTE
@@ -286,9 +319,10 @@ OP_LDY_AB:				; *** $AC - LDY ABSOLUTE
 	tst		CPU_Y
 	UpdateNZjmpLoop
 
-	
 
-	
+;-----------------------------------------------------------------------------
+
+
 OP_LDY_ABX:				; *** $BC - LDY ABSOLUTE,Y	
 #ifdef DEBUG	
 	nop

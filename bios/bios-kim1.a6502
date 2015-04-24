@@ -111,17 +111,17 @@ RESET           ldx     #$FF
 ;
 ; DETERMINE TTY CPS removed from code by Mats Engstrom
 ; 
-	DTA 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-	DTA 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-	DTA 0,0,0,0,0
+	DTA $EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA
+	DTA $EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA
+	DTA $EA,$EA,$EA,$EA,$EA
 ;
 ; Make TTY/KB selection
 ;
 START           JSR     INIT1					;[1c4f]
 		JMP	TTYKB		; Mats Engstrom : Always use KB/Display
-	DTA 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-	DTA 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-	DTA 0,0,0
+	DTA $EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA
+	DTA $EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA
+	DTA $EA,$EA,$EA
 
 
 ;
@@ -211,20 +211,20 @@ PCCMD           lda     PCL
 ;
 ; LOAD & DUMP for papertape removed from code by Mats Engstrom
 ;
-	DTA 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-	DTA 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-	DTA 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-	DTA 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-	DTA 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-	DTA 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-	DTA 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-	DTA 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-	DTA 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-	DTA 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-	DTA 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-	DTA 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-	DTA 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-	DTA 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+	DTA $EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA
+	DTA $EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA
+	DTA $EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA
+	DTA $EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA
+	DTA $EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA
+	DTA $EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA
+	DTA $EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA
+	DTA $EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA
+	DTA $EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA
+	DTA $EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA
+	DTA $EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA
+	DTA $EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA
+	DTA $EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA
+	DTA $EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA
 	DTA 0
 
 
@@ -248,17 +248,17 @@ GOEXEC          ldx     SPUSER          ; user defined stack		[1dc8]
 ; PRINT POINT/ADDRESS TO TTY removed from code by Mats Engstrom
 ; GET CHARACTER FROM TTY removed from code by Mats Engstrom
 ;
-	DTA 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-	DTA 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-	DTA 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-	DTA 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-	DTA 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-	DTA 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-	DTA 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-	DTA 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-	DTA 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-	DTA 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-	DTA 0,0,0,0,0,0,0,0,0,0,0,0,0
+	DTA $EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA
+	DTA $EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA
+	DTA $EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA
+	DTA $EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA
+	DTA $EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA
+	DTA $EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA
+	DTA $EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA
+	DTA $EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA
+	DTA $EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA
+	DTA $EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA
+	DTA $EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA
 
 ;
 ; initialization of 6530                                                [1E88]
@@ -279,12 +279,12 @@ INIT1           ldx     #0
 ; OUTPUT CHARACTER TO TTY removed from code by Mats Engstrom
 ;
 
-	DTA 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-	DTA 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-	DTA 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-	DTA 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-	DTA 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-	DTA 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+	DTA $EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA
+	DTA $EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA
+	DTA $EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA
+	DTA $EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA
+	DTA $EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA
+	DTA $EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA
 
 ;
 ; Determine if key is depressed: NO -> A=0, YES -> A>0
@@ -399,12 +399,12 @@ KEYIN4          dex                     ; countdown to 0
 
 ; COMPUTE CHECKSUM AND TTY HEX CONVERTING removed by Mats Engstrom
 
-	DTA 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-	DTA 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-	DTA 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-	DTA 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-	DTA 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-	DTA 0,0,0,0,0,0
+	DTA $EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA
+	DTA $EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA
+	DTA $EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA
+	DTA $EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA
+	DTA $EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA
+	DTA $EA,$EA,$EA,$EA,$EA,$EA
 
 
 ; Hex -> 7-segment	0   1   2   3   4   5   6   7

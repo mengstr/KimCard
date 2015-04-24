@@ -43,25 +43,36 @@
 ;
 
 OP_ROL_AC:				; *** $2A - ROL
+#ifdef DEBUG
+	nop
+#endif
 	UpdateCarryFromCPU
 	rol		CPU_ACC
 	UpdateNCZjmpLoop
-	
 
+
+;-----------------------------------------------------------------------------
 
 
 OP_ROL_ZP:				; *** $26 - ROL ZEROPAGE 
+#ifdef DEBUG
+	nop
+#endif
 	HandleZEROPAGE
 	UpdateCarryFromCPU
 	ld		r16, Z
 	rol		r16
 	st		Z, r16
 	UpdateNCZjmpLoop
-	
 
+
+;-----------------------------------------------------------------------------
 
 
 OP_ROL_ZPX:				; *** $36 - ROL ZEROPAGE,X 
+#ifdef DEBUG
+	nop
+#endif
 	HandleZEROPAGE_X
 	UpdateCarryFromCPU
 	ld		r16, Z
@@ -70,18 +81,28 @@ OP_ROL_ZPX:				; *** $36 - ROL ZEROPAGE,X
 	UpdateNCZjmpLoop
 
 
+;-----------------------------------------------------------------------------
+
 
 OP_ROL_AB:				; *** $2E - ROL ABSOLUTE  
+#ifdef DEBUG
+	nop
+#endif
 	HandleABSOLUTE
 	UpdateCarryFromCPU
 	ld		r16, Z
 	rol		r16
 	st		Z, r16
 	UpdateNCZjmpLoop
-	
+
+
+;-----------------------------------------------------------------------------
 
 
 OP_ROL_ABX:				; *** $3E - ROL ABSOLUTE,X
+#ifdef DEBUG
+	nop
+#endif
 	HandleABSOLUTE_X
 	UpdateCarryFromCPU
 	ld		r16, Z
@@ -89,7 +110,6 @@ OP_ROL_ABX:				; *** $3E - ROL ABSOLUTE,X
 	st		Z, r16
 	UpdateNCZjmpLoop
 	
-
 
 
 
@@ -111,23 +131,37 @@ OP_ROL_ABX:				; *** $3E - ROL ABSOLUTE,X
 ;
 
 OP_ROR_AC:				; *** $6A - ROR
+#ifdef DEBUG
+	nop
+#endif
 	UpdateCarryFromCPU
 	ror		CPU_ACC
 	UpdateNCZjmpLoop
 	jmp Loop
 
 
+;-----------------------------------------------------------------------------
+
+
 OP_ROR_ZP:				; *** $66 - ROR ZEROPAGE
+#ifdef DEBUG
+	nop
+#endif
 	HandleZEROPAGE
 	UpdateCarryFromCPU
 	ld		r16, Z
 	ror		r16
 	st		Z, r16
 	UpdateNCZjmpLoop
-	
+
+
+;-----------------------------------------------------------------------------
 
 
 OP_ROR_ZPX:				; *** $76 - ROR ZEROPAGE,X
+#ifdef DEBUG
+	nop
+#endif
 	HandleZEROPAGE_X
 	UpdateCarryFromCPU
 	ld		r16, Z
@@ -136,18 +170,28 @@ OP_ROR_ZPX:				; *** $76 - ROR ZEROPAGE,X
 	UpdateNCZjmpLoop
 
 
+;-----------------------------------------------------------------------------
+
 
 OP_ROR_AB:				; *** $6E - ROR ABSOLUTE
+#ifdef DEBUG
+	nop
+#endif
 	HandleABSOLUTE
 	UpdateCarryFromCPU
 	ld		r16, Z
 	ror		r16
 	st		Z, r16
 	UpdateNCZjmpLoop
-	
+
+
+;-----------------------------------------------------------------------------
 
 
 OP_ROR_ABX:				; *** $7E - ROR ABSOLUTE,X 
+#ifdef DEBUG
+	nop
+#endif
 	UpdateCarryFromCPU
 	ld		r16, Z
 	ror		r16
@@ -179,22 +223,34 @@ OP_ROR_ABX:				; *** $7E - ROR ABSOLUTE,X
 ;
 
 OP_ASL_AC:				; *** $0A - ASL
+#ifdef DEBUG
+	nop
+#endif
 	lsl		CPU_ACC
 	UpdateNCZjmpLoop
-	
+
+
+;-----------------------------------------------------------------------------
 
 
 OP_ASL_ZP:				; *** $06 - ASL ZEROPAGE  
+#ifdef DEBUG
+	nop
+#endif
 	HandleZEROPAGE
 	ld		r16, Z
 	lsl		r16
 	st		Z, r16
 	UpdateNCZjmpLoop
-	
 
+
+;-----------------------------------------------------------------------------
 
 
 OP_ASL_ZPX:				; *** $16 - ASL ZEROPAGE,X
+#ifdef DEBUG
+	nop
+#endif
 	HandleZEROPAGE_X
 	ld		r16, Z
 	lsl		r16
@@ -202,17 +258,27 @@ OP_ASL_ZPX:				; *** $16 - ASL ZEROPAGE,X
 	UpdateNCZjmpLoop
 
 
- 
+;-----------------------------------------------------------------------------
+
+
 OP_ASL_AB:				; *** $0E - ASL ABSOLUTE 
+#ifdef DEBUG
+	nop
+#endif
 	HandleABSOLUTE
 	ld		r16, Z
 	lsl		r16
 	st		Z, r16
 	UpdateNCZjmpLoop
-	
+
+
+;-----------------------------------------------------------------------------
 
 
 OP_ASL_ABX:				; *** $1E - ASL ABSOLUTE,X   
+#ifdef DEBUG
+	nop
+#endif
 	HandleABSOLUTE_X
 	ld		r16, Z
 	lsl		r16
@@ -240,40 +306,63 @@ OP_ASL_ABX:				; *** $1E - ASL ABSOLUTE,X
 ; N	Negative Flag		0
 
 OP_LSR_AC:				; *** $4A - LSL  
+#ifdef DEBUG
+	nop
+#endif
 	ClearNZ
 	lsr		CPU_ACC
 	UpdateNZjmpLoop
 
 
+;-----------------------------------------------------------------------------
+
 
 OP_LSR_ZP:				; *** $46 - LSR ZEROPAGE 
+#ifdef DEBUG
+	nop
+#endif
 	HandleZEROPAGE
 	ld		r16, Z
 	lsr		r16
 	st		Z, r16
 	UpdateCZjmpLoop
-	
+
+
+;-----------------------------------------------------------------------------
 
 
 OP_LSR_ZPX:				; *** $56 - LSR ZEROPAGE,X  
+#ifdef DEBUG
+	nop
+#endif
 	HandleZEROPAGE_X
 	ld		r16, Z
 	lsr		r16
 	st		Z, r16
 	UpdateCZjmpLoop
-	
-	
+
+
+;-----------------------------------------------------------------------------
+
 
 OP_LSR_AB:				; *** $4E - LSR ABSOLUTE  
+#ifdef DEBUG
+	nop
+#endif
 	HandleABSOLUTE
 	ld		r16, Z
 	lsr		r16
 	st		Z, r16
 	UpdateCZjmpLoop
-	
+
+
+;-----------------------------------------------------------------------------
 
 
 OP_LSR_ABX:				; *** $5E LSR ABSOLUTE,X
+#ifdef DEBUG
+	nop
+#endif
 	HandleABSOLUTE_X
 	ld		r16, Z
 	lsr		r16

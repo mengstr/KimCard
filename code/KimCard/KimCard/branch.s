@@ -27,6 +27,9 @@
 ;
 
 OP_BCC:					; *** $90 - BCC
+#ifdef DEBUG
+	nop
+#endif
 	HandleRELATIVE
 	sbrc	CPU_STATUS, BIT_FLAG_CARRY
 	jmp		Loop
@@ -52,6 +55,9 @@ OP_BCC:					; *** $90 - BCC
 ;
 
 OP_BCS:					; *** $B0 - BCS
+#ifdef DEBUG
+	nop
+#endif
 	HandleRELATIVE
 	sbrs	CPU_STATUS, BIT_FLAG_CARRY
 	jmp		Loop
@@ -77,6 +83,9 @@ OP_BCS:					; *** $B0 - BCS
 ;
 
 OP_BEQ:					; *** $F0 - BEQ
+#ifdef DEBUG
+	nop
+#endif
 	HandleRELATIVE
 	sbrs	CPU_STATUS, BIT_FLAG_ZERO
 	jmp		Loop
@@ -103,6 +112,9 @@ OP_BEQ:					; *** $F0 - BEQ
 ;
 
 OP_BMI:					; *** $30 - BMI
+#ifdef DEBUG
+	nop
+#endif
 	HandleRELATIVE
 	sbrs	CPU_STATUS, BIT_FLAG_NEGATIVE
 	jmp		Loop
@@ -127,6 +139,9 @@ OP_BMI:					; *** $30 - BMI
 ;
 
 OP_BNE:					; *** $D0 - BNE
+#ifdef DEBUG
+	nop
+#endif
 	HandleRELATIVE
 	sbrc	CPU_STATUS, BIT_FLAG_ZERO
 	jmp		Loop
@@ -151,6 +166,9 @@ OP_BNE:					; *** $D0 - BNE
 ;
 
 OP_BPL:	
+#ifdef DEBUG
+	nop
+#endif
 	HandleRELATIVE		; *** $10 - BPL
 	sbrc	CPU_STATUS, BIT_FLAG_NEGATIVE
 	jmp		Loop
@@ -177,6 +195,9 @@ OP_BPL:
 ;
 
 OP_BVC:					; *** $50 - BVC
+#ifdef DEBUG
+	nop
+#endif
 	HandleRELATIVE
 	sbrc	CPU_STATUS, BIT_FLAG_OVERFLOW
 	jmp		Loop
@@ -203,6 +224,9 @@ OP_BVC:					; *** $50 - BVC
 ;
 
 OP_BVS:					; *** $70 - BVS
+#ifdef DEBUG
+	nop
+#endif
 	HandleRELATIVE
 	sbrs	CPU_STATUS, BIT_FLAG_OVERFLOW
 	jmp		Loop

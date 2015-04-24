@@ -25,6 +25,9 @@
 ;
 	
 OP_PLA:					; *** $68 - PLA
+#ifdef DEBUG
+	nop
+#endif
 	ClearNZ
 	ldi		ZH, 0x20+1		; Stack is 0x100-0x1FF on 6502. Offset this with 0x20 pages for SRAM
 	mov		ZL,	CPU_SP
@@ -49,6 +52,9 @@ OP_PLA:					; *** $68 - PLA
 ; N Negative Flag		-
 ;
 OP_PHA:					; ** $48 - PHA
+#ifdef DEBUG
+	nop
+#endif
 	ldi		ZH, 0x20+1		; Stack is 0x100-0x1FF on 6502. Offset this with 0x20 pages for SRAM
 	mov		ZL,	CPU_SP
 	st		Z, CPU_ACC
@@ -73,6 +79,9 @@ OP_PHA:					; ** $48 - PHA
 ;
 
 OP_PHP:					; *** $08 - PHP
+#ifdef DEBUG
+	nop
+#endif
 	ldi		ZH, 0x20+1		; Stack is 0x100-0x1FF on 6502. Offset this with 0x20 pages for SRAM
 	mov		ZL,	CPU_SP
 	st		Z, CPU_STATUS
@@ -99,6 +108,9 @@ OP_PHP:					; *** $08 - PHP
 ;
 
 OP_PLP:					; *** $28 - PLP
+#ifdef DEBUG
+	nop
+#endif
 	ldi		ZH, 0x20+1		; Stack is 0x100-0x1FF on 6502. Offset this with 0x20 pages for SRAM
 	mov		ZL,	CPU_SP
 	inc		CPU_SP		

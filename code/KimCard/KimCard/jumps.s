@@ -24,7 +24,6 @@
 ; N	Negative Flag		-
 ;
  
-
 OP_JMP_AB:				; *** $4C - JMP ABSOLUTE 
 #ifdef DEBUG
 	nop
@@ -35,9 +34,15 @@ OP_JMP_AB:				; *** $4C - JMP ABSOLUTE
 	mov		CPU_PCL, r16
 	mov		CPU_PCH, r17
 	jmp 	Loop
-	
+
+
+;-----------------------------------------------------------------------------
+
 
 OP_JMP_IND:				; *** $6C - JMP (INDIRECT)
+#ifdef DEBUG
+	nop
+#endif
 	FixPageNoStore				; Offset for SRAM
 	ld		ZL, Y+			; Jump indirect address low
 	ld		ZH, Y+			; Jump indirect address hi
@@ -67,6 +72,9 @@ OP_JMP_IND:				; *** $6C - JMP (INDIRECT)
 ;
 
 OP_JSR:					; *** $20 - JSR ABSOLUTE
+#ifdef DEBUG
+	nop
+#endif
 	adiw	YY, 1
 	ldi		ZH, 0x20+1		; Push current PC to stack  offset 0x20 page for SRAM
 	mov		ZL, CPU_SP
@@ -103,6 +111,9 @@ OP_JSR:					; *** $20 - JSR ABSOLUTE
 ;
 
 OP_RTS:					; *** $40 - RTS 
+#ifdef DEBUG
+	nop
+#endif
 	ldi		ZH, 0x20+1			; Offset 0x20 pages for SRAM
 	mov		ZL, CPU_SP
 	inc		ZL
@@ -135,7 +146,10 @@ OP_RTS:					; *** $40 - RTS
 ;
 
 OP_RTI:					; *** $40 - RTI
-ldi		ZH, 0x20+1			; Offset 0x20 pages for SRAM
+#ifdef DEBUG
+	nop
+#endif
+	ldi		ZH, 0x20+1			; Offset 0x20 pages for SRAM
 	mov		ZL, CPU_SP
 
 	inc		ZL
@@ -152,8 +166,4 @@ ldi		ZH, 0x20+1			; Offset 0x20 pages for SRAM
 	inc		CPU_SP
 	jmp 	Loop
 	
-
-
-
-
 

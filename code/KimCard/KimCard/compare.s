@@ -38,70 +38,103 @@
 ;
 
 OP_CMP_IM:				; *** $C9 -	CMP IMMEDIATE
+#ifdef DEBUG
+	nop
+#endif
 	HandleIMMEDIATE
 	cp		CPU_ACC,ZL
 	UpdateNZInvCjmpLoop
-	
 
+
+;-----------------------------------------------------------------------------
 
 
 OP_CMP_ZP:				; *** $C5 - CMP ZEROPAGE
+#ifdef DEBUG
+	nop
+#endif
 	HandleZEROPAGE
 	ld		r16, Z
 	cp		CPU_ACC, r16
 	UpdateNZInvCjmpLoop
 
 
+;-----------------------------------------------------------------------------
+
 
 OP_CMP_ZPX:				; *** $D5 - CMP ZEROPAGE,X
+#ifdef DEBUG
+	nop
+#endif
 	HandleZEROPAGE_X
 	ld		r16, Z
 	cp		CPU_ACC, r16
 	UpdateNZInvCjmpLoop
 
 
+;-----------------------------------------------------------------------------
+
 
 OP_CMP_AB:				; *** $CD - CMP ABSOLUTE
+#ifdef DEBUG
+	nop
+#endif
 	HandleABSOLUTE
 	ld		r16, Z
 	cp		CPU_ACC, r16
 	UpdateNZInvCjmpLoop
 
 
+;-----------------------------------------------------------------------------
+
 
 OP_CMP_ABX:				; *** $DD - CMP ABSOLUTE,X
+#ifdef DEBUG
+	nop
+#endif
 	HandleABSOLUTE_X
 	ld		r16, Z
 	cp		CPU_ACC, r16
 	UpdateNZInvCjmpLoop
 
 
+;-----------------------------------------------------------------------------
+
 
 OP_CMP_ABY:				; *** $D9 - CMP ABSOLUTE,Y
+#ifdef DEBUG
+	nop
+#endif
 	HandleABSOLUTE_Y
 	ld		r16, Z
 	cp		CPU_ACC, r16
 	UpdateNZInvCjmpLoop
 
 
+;-----------------------------------------------------------------------------
+
 
 OP_CMP_IX:				; *** $C1 - CMP (INDIRECT,X)
+#ifdef DEBUG
+	nop
+#endif
 	HandleINDIRECT_X
 	ld		r16, Z
 	cp		CPU_ACC, r16
 	UpdateNZInvCjmpLoop
 
 
+;-----------------------------------------------------------------------------
+
 
 OP_CMP_IY:				; *** $D1 - CMP (INDIRECT),Y
+#ifdef DEBUG
+	nop
+#endif
 	HandleINDIRECT_Y
 	ld		r16, Z
 	cp		CPU_ACC, r16
 	UpdateNZInvCjmpLoop
-	
-
-
-
 
 
 
@@ -125,26 +158,40 @@ OP_CMP_IY:				; *** $D1 - CMP (INDIRECT),Y
 ;
 
 OP_CPX_IM:				; *** $E0 - CPX IMMEDIATE
+#ifdef DEBUG
+	nop
+#endif
 	HandleIMMEDIATE
 	cp		CPU_X, ZL
 	UpdateNCZjmpLoop
 
 
+;-----------------------------------------------------------------------------
+
 
 OP_CPX_ZP:				; *** $E4 - CPX ZEROPAGE
+#ifdef DEBUG
+	nop
+#endif
 	HandleZEROPAGE
 	ld		r16, Z
 	cp		CPU_X, r16
 	UpdateNCZjmpLoop
 
 
+;-----------------------------------------------------------------------------
+
 
 OP_CPX_AB:				; *** $EC -	CPX ABSOLUTE
+#ifdef DEBUG
+	nop
+#endif
 	HandleABSOLUTE
 	ld		r16, Z
 	cp		CPU_X, r16
 	UpdateNCZjmpLoop	
 	
+
 
 
 ;*****************************************************************************
@@ -166,22 +213,35 @@ OP_CPX_AB:				; *** $EC -	CPX ABSOLUTE
 ;
 
 OP_CPY_IM:				; *** $C0 - CPY IMMEDIATE
+#ifdef DEBUG
+	nop
+#endif
 	HandleIMMEDIATE
 	ld		r16, Z
 	cp		CPU_Y, ZL
 	UpdateNCZjmpLoop
 
 
+;-----------------------------------------------------------------------------
+
 
 OP_CPY_ZP:				; *** $C4 -	CPY ZEROAPAGE
+#ifdef DEBUG
+	nop
+#endif
 	HandleZEROPAGE
 	ld		r16, Z
 	cp		CPU_Y, r16
 	UpdateNCZjmpLoop
 
 
+;-----------------------------------------------------------------------------
+
 
 OP_CPY_AB:				; *** $CC - CPY ABSOLUTE
+#ifdef DEBUG
+	nop
+#endif
 	HandleABSOLUTE
 	ld		r16, Z
 	cp		CPU_Y, r16
