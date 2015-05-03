@@ -1,0 +1,24 @@
+[Eagle]
+Version="07 02 00"
+Platform="Mac OS X"
+Serial="6B247C8844-LSR-WLM-1SS"
+Globals="Globals"
+Desktop="Desktop"
+
+[Globals]
+AutoSaveProject=1
+UsedLibrary="/Users/matseng/Documents/eagle/lbr_ext/SmallRoomLabs.lbr"
+UsedLibrary="/Users/matseng/Documents/eagle/lbr_ext/adafruit.lbr"
+UsedLibrary="/Users/matseng/Documents/eagle/lbr_ext/diy-modules.lbr"
+UsedLibrary="/Users/matseng/Documents/eagle/lbr_ext/dp_devices.lbr"
+UsedLibrary="/Users/matseng/Documents/eagle/lbr_ext/microchip-mcp2221.lbr"
+
+[Win_1]
+Type="Control Panel"
+Loc="0 23 1679 1000"
+State=1
+Number=0
+
+[Desktop]
+Screen="1680 1050"
+Window="Win_1"
